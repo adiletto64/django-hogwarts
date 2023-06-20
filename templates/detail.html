@@ -1,0 +1,9 @@
+{% include 'menu.html' %}
+
+<h1>{{ example.message }}</h1>
+
+<form method="post" action="{% url 'example:add_equal_sign' example.pk %}">
+    {% csrf_token %}
+    <button type="submit">add equal sign</button>
+</form>
+
