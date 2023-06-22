@@ -2,9 +2,9 @@ from django.test import TestCase
 from django.urls import path
 from django.views import View
 
-from . import _test_views
-from ._test_views import MyFormView, MyListView, get_view, post_view
-from .autourl import (
+from .. import _test_views
+from .._test_views import MyFormView, MyListView, get_view, post_view
+from ..autourl import (
     auto_path,
     get_path,
     get_path_name,
