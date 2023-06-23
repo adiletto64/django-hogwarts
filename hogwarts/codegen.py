@@ -80,3 +80,14 @@ def insert_code(code_blocks: list[str], imports: str):
         origin_code += f"\n{code_strip(code)}"
 
     return origin_code
+
+
+def generate_views(model: Type[models.Model]):
+    gen = ViewGenerator(model)
+
+    detail = gen.gen_detail_view()
+    _list = gen.gen_list_view()
+    create = gen.gen_create_view()
+    update = gen.gen_update_view()
+
+    return insert_code([detail, _list, create, update], gen.get_imports_code())
