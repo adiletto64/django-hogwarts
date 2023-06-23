@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from django.db import models
 
-from .utils import to_plural, code_strip
+from .utils import to_plural, code_strip, remove_empty_lines
 
 @dataclass
 class ClassView:
@@ -34,46 +34,39 @@ class ViewGenerator:
     def gen_detail_view(self):
         self.imports.append("DetailView")
         self.add_class(f"{self.model_name}DetailView")
-
-        return f"""
-            class {self.model_name}DetailView(DetailView):
-                model = {self.model_name}
-                context_object_name = "{self.model_name_lower}"
-                template_name = "{to_plural(self.model_name_lower)}/{self.model_name_lower}_detail.html"
-        """
+        return self.base_view("detail", False, True, True)
 
     def gen_list_view(self):
         self.imports.append("ListView")
         self.add_class(f"{self.model_name}ListView")
+        return self.base_view("list", False, True)
 
-        return f"""
-            class {self.model_name}ListView(ListView):
-                model = {self.model_name}
-                context_object_name = "{to_plural(self.model_name_lower)}"
-                template_name = "{to_plural(self.model_name_lower)}/{self.model_name_lower}_list.html"
-        """
 
     def gen_create_view(self):
         self.imports.append("CreateView")
         self.add_class(f"{self.model_name}CreateView")
-
-        return f"""
-            class {self.model_name}CreateView(CreateView):
-                model = {self.model_name}
-                fields = {str(self.field_names)}
-                template_name = "{to_plural(self.model_name_lower)}/{self.model_name_lower}_create.html"
-        """
+        return self.base_view("create", True, False)
 
     def gen_update_view(self):
         self.imports.append("UpdateView")
         self.add_class(f"{self.model_name}UpdateView")
+        return self.base_view("update", True, False)
 
-        return f"""
-            class {self.model_name}UpdateView(UpdateView):
-                model = {self.model_name}
-                fields = {str(self.field_names)}
-                template_name = "{to_plural(self.model_name_lower)}/{self.model_name_lower}_update.html"
+    def base_view(self, action: str, fields: bool, context: bool, detail: bool = False):
+        name = self.model_name_lower
+        action_view = f"{action.capitalize()}View"
+        object_name = name if detail else to_plural(name)
+        template_name = f"{to_plural(name)}/{name}_{action.lower()}.html"
+
+        result = f"""
+        class {self.model_name}{action_view}({action_view}):
+            model = {self.model_name}
+            {f'fields = {str(self.field_names)}' if fields else ''}
+            {f'context_object_name = "{object_name}"' if context else ''}
+            template_name = "{template_name}"
         """
+
+        return remove_empty_lines(result) + "\n"
 
     def add_class(self, class_name: str):
         if class_name not in self.class_names:

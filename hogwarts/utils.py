@@ -51,3 +51,9 @@ def code_strip(code):
         code[i] = code[i][spaces:].rstrip()
 
     return "\n".join(code)
+
+
+def remove_empty_lines(text):
+    lines = text.splitlines()
+    non_empty_lines = [line for line in lines if line.strip()]
+    return '\n'.join(non_empty_lines)

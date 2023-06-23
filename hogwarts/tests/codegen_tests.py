@@ -91,11 +91,11 @@ def test_it_inserts_code():
     class ArticleDetailView(DetailView):
         model = Article
         context_object_name = "article"
-        template_name = "articles/article_detail.html"        
+        template_name = "articles/article_detail.html"
     """
 
-    print(code_strip(new_code))
-    print("========")
+    print(new_code)
+    print("======")
     print(code_strip(expected_code))
 
     assert code_strip(new_code) == code_strip(expected_code)
