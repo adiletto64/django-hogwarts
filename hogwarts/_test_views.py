@@ -25,6 +25,10 @@ def post_view(request):
     pass
 
 
+def confirm_post_view(request):
+    pass
+
+
 def get_view(request):
     pass
 

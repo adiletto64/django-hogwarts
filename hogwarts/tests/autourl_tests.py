@@ -3,7 +3,7 @@ from django.urls import path
 from django.views import View
 
 from .. import _test_views
-from .._test_views import MyFormView, MyListView, get_view, post_view
+from .._test_views import MyFormView, MyListView, get_view, post_view, confirm_post_view
 from ..autourl import (
     auto_path,
     get_path,
@@ -24,7 +24,7 @@ def dumb_files_view(): pass
 class AutoUrlTestCase(TestCase):
     def test_it_imports_user_defined_views(self):
         imported_classes = import_views(_test_views)
-        expected = [MyFormView, MyListView, get_view, post_view]
+        expected = [MyFormView, MyListView, confirm_post_view, get_view, post_view]
 
         self.assertListEqual(imported_classes, expected)
 

@@ -46,6 +46,36 @@ def auto_urls(views_module, app_name: str):
     return urlpatterns
 
 
+def gen_urls(views_module, app_name: str):
+    views = import_views(views_module)
+    urlpatterns = []
+
+    for view in views:
+        urlpatterns.append(gen_string_path(view, app_name))
+
+    paths_string = ",\n    ".join(urlpatterns)
+
+    result = f"""
+urlpatterns = [
+    {paths_string.strip()}
+]    
+    """
+
+    return result
+
+
+def gen_string_path(view, app_name) -> str:
+    _path = get_path_name(view, app_name)
+    _url = get_path_url(_path)
+
+    if isclass(view):
+        view_function = f"{view.__name__}.as_view()"
+    else:
+        view_function = f"{view.__name__}"
+
+    return f'path("{_url}", {view_function}, name="{_path}")'
+
+
 def import_views(views_module):
     members = inspect.getmembers(views_module, predicate=is_view)
     return [t[1] for t in members]

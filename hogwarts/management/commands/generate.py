@@ -35,5 +35,3 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(f"Generated CRUD views in {path}")
         )
-
-
