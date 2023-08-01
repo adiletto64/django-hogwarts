@@ -1,8 +1,5 @@
-from django.views.generic import CreateView, FormView, ListView
 
 # test import
-from itertools import combinations
-from math import asin, cos
 
 
 class MyFormView:

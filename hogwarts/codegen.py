@@ -1,4 +1,3 @@
-import math
 from typing import Type
 from dataclasses import dataclass
 

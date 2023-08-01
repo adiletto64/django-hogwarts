@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import path
 from django.views import View
 

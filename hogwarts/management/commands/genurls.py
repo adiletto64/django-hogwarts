@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.apps import apps
 
-from hogwarts.codegen import generate_views
 
 
 class Command(BaseCommand):
@@ -18,8 +17,8 @@ class Command(BaseCommand):
         if app_name not in app_names:
             raise CommandError(f"Provided app '{app_name}' does not exist")
 
-        app_config = apps.get_app_config(app_name)
+        apps.get_app_config(app_name)
 
         self.stdout.write(
-            self.style.SUCCESS(f"Successfully generated urls 🔥")
+            self.style.SUCCESS("Successfully generated urls 🔥")
         )

@@ -4,7 +4,6 @@ from hogwarts.magic_urls.base import (
     import_views,
     get_path_name,
     get_path_url,
-    Path,
     view_is_detail,
     has_path_decorator,
     get_decorator_path_name,
