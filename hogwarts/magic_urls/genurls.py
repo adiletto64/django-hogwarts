@@ -1,6 +1,6 @@
 from inspect import isclass
 
-from hogwarts.magic_urls.base import (
+from hogwarts.magic_urls._base import (
     import_views,
     get_path_name,
     get_path_url,

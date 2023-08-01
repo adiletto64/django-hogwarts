@@ -9,7 +9,7 @@ from ..magic_urls.autourls import (
     import_views,
 )
 from ..magic_urls import custom_path
-from ..magic_urls.base import get_path_url
+from ..magic_urls._base import get_path_url
 
 
 class ProductCreateView(View): pass
