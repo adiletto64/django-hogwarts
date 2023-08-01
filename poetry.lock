@@ -309,6 +309,14 @@ docs = ["sphinx", "sphinx-rtd-theme"]
 testing = ["django", "django-configurations (>=2.0)"]
 
 [[package]]
+name = "ruff"
+version = "0.0.280"
+description = "An extremely fast Python linter, written in Rust."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -392,7 +400,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "04d28c1faca0b0dc5d465c96c1b6da32578b18c23683d62766ee84645e59ac13"
+content-hash = "3e118fad8daae97c4c75df590ad7bdc54e7aec8b4e52336a68d87c243b343d1d"
 
 [metadata.files]
 appnope = []
@@ -420,6 +428,7 @@ pure-eval = []
 pygments = []
 pytest = []
 pytest-django = []
+ruff = []
 six = []
 sqlparse = []
 stack-data = []

@@ -1,4 +1,5 @@
-from ..autourl import gen_urls, gen_string_path
+from ..magic_urls.genurls import gen_urls, gen_string_path
+from ..magic_urls import custom_path
 
 from .. import _test_views
 
@@ -17,6 +18,17 @@ def test_it_generates_path_for_function():
     assert result == expected
 
 
+def test_it_extracts_metadata():
+    @custom_path("green", "green-hello/")
+    class RedView:
+        pass
+
+    result = gen_string_path(RedView, "none")
+    expected = 'path("green-hello/", RedView.as_view(), name="green")'
+
+    assert result == expected
+
+
 def test_it_generates_urls():
     result = gen_urls(_test_views, "my")
 
@@ -31,4 +43,3 @@ urlpatterns = [
     """
 
     assert result == expected
-

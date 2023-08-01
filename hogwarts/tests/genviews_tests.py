@@ -1,6 +1,3 @@
-import textwrap
-import ast
-
 from hogwarts.codegen import ViewGenerator, insert_code
 
 from ..models import Article
