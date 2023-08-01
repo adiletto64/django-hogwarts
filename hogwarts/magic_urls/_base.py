@@ -16,7 +16,7 @@ detail_names = [
 ]
 
 
-base_class_names = [
+BASE_CLASS_NAMES = [
     'View',
     'ListView',
     'CreateView',
@@ -99,7 +99,7 @@ def is_view(obj):
         return False
 
     ends_with_view = name.lower().endswith("view")
-    not_base_class = name not in base_class_names
+    not_base_class = name not in BASE_CLASS_NAMES
 
     return ends_with_view and not_base_class
 
