@@ -1,5 +1,9 @@
+import importlib
+
 from django.core.management.base import BaseCommand, CommandError
 from django.apps import apps
+
+from hogwarts.magic_urls.genurls import gen_urls
 
 
 class Command(BaseCommand):
@@ -11,12 +15,18 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         app_name: str = options["app"]
 
-        app_names = [_app.name for _app in apps.get_app_configs()]
+        try:
+            apps.get_app_config(app_name)
+        except LookupError:
+            raise CommandError(f"App '{app_name}' does not exist.")
 
-        if app_name not in app_names:
-            raise CommandError(f"Provided app '{app_name}' does not exist")
+        try:
+            # Import the views.py file dynamically
+            views_module = importlib.import_module(f"{app_name}.views")
+        except ModuleNotFoundError:
+            raise CommandError(f"Views not found for app '{app_name}'.")
 
-        apps.get_app_config(app_name)
+        print(gen_urls(views_module, "example"))
 
         self.stdout.write(
             self.style.SUCCESS("Successfully generated urls 🔥")

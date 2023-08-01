@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-from ._base import BASE_CLASS_NAMES
-
 
 @dataclass
 class Path:
@@ -35,18 +33,3 @@ def append_path_to_urls_code(code: str, path: str):
         raise ValueError(f"code {code} does not have closing ']' symbol")
 
     return code[:closing_bracket_index] + f"    {path}\n]"
-
-
-def extract_views(views_module):
-    objects = dir(views_module)
-
-    views = []
-
-    for obj in objects:
-        not_imported = obj not in BASE_CLASS_NAMES
-        ends_with_view = obj.lower().endswith("view")
-
-        if not_imported and ends_with_view:
-            views.append(getattr(views_module, obj))
-
-    return views
