@@ -3,7 +3,8 @@ import importlib
 from django.core.management.base import BaseCommand, CommandError
 from django.apps import apps
 
-from hogwarts.magic_urls.genurls import gen_urls
+from hogwarts.magic_urls._base import import_views
+from hogwarts.magic_urls.genurls import gen_urls, gen_url_imports
 
 
 class Command(BaseCommand):
@@ -16,7 +17,7 @@ class Command(BaseCommand):
         app_name: str = options["app"]
 
         try:
-            apps.get_app_config(app_name)
+            app_config = apps.get_app_config(app_name)
         except LookupError:
             raise CommandError(f"App '{app_name}' does not exist.")
 
@@ -26,7 +27,17 @@ class Command(BaseCommand):
         except ModuleNotFoundError:
             raise CommandError(f"Views not found for app '{app_name}'.")
 
-        print(gen_urls(views_module, "example"))
+        imports = gen_url_imports(import_views(views_module), "views")
+        urlpatterns = gen_urls(views_module, "example")
+
+        print(f"generating urls for {app_name}.views 📂")
+
+        print("======resulting urlpatterns========")
+        print(urlpatterns)
+
+        path = f'{app_config.path}\\urls.py'
+        with open(path, 'w') as file:
+            file.write(imports + "\n\n" + urlpatterns)
 
         self.stdout.write(
             self.style.SUCCESS("Successfully generated urls 🔥")

@@ -1,5 +1,12 @@
-from . import views
-from .magic_urls.autourls import auto_urls
+from django.urls import path
 
-app_name = "example"
-urlpatterns = auto_urls(views, "example")
+from .views import AddEqualSignView, ExampleCreateView, ExampleDetailView, ExampleListView
+
+
+urlpatterns = [
+    path("<int:pk>/add-equal-sign/", AddEqualSignView.as_view(), name="add_equal_sign"),
+    path("create/", ExampleCreateView.as_view(), name="create"),
+    path("<int:pk>/", ExampleDetailView.as_view(), name="detail"),
+    path("", ExampleListView.as_view(), name="list")
+]    
+    

@@ -44,3 +44,9 @@ def gen_string_path(view, app_name) -> str:
         view_function = f"{view.__name__}"
 
     return f'path("{path_url}", {view_function}, name="{path_name}")'
+
+
+def gen_url_imports(views: list[object], views_file_name: str):
+    string_views = ", ".join((view.__name__ for view in views))
+
+    return f"from django.urls import path\n\nfrom .{views_file_name} import {string_views}"

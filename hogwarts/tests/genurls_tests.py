@@ -1,4 +1,4 @@
-from ..magic_urls.genurls import gen_urls, gen_string_path
+from ..magic_urls.genurls import gen_urls, gen_string_path, gen_url_imports
 from ..magic_urls import custom_path
 
 from .. import _test_views
@@ -41,5 +41,17 @@ urlpatterns = [
     path("post/", post_view, name="post")
 ]    
     """
+
+    assert result == expected
+
+
+def test_it_generates_imports():
+    result = gen_url_imports([
+        _test_views.MyListView,
+        _test_views.MyFormView,
+        _test_views.get_view
+    ], "_test_views")
+
+    expected = """from ._test_views import MyListView, MyFormView, get_view"""
 
     assert result == expected
