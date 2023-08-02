@@ -1,4 +1,4 @@
-from ..magic_urls.genurls import gen_urls, gen_string_path, gen_url_imports
+from ..magic_urls.genurls import gen_urlpatterns, gen_string_path, gen_url_imports
 from ..magic_urls import custom_path
 
 from .. import _test_views
@@ -30,7 +30,7 @@ def test_it_extracts_metadata():
 
 
 def test_it_generates_urls():
-    result = gen_urls(_test_views, "my")
+    result = gen_urlpatterns(_test_views, "my")
 
     expected = """
 urlpatterns = [

@@ -11,7 +11,15 @@ from hogwarts.magic_urls._base import (
 )
 
 
-def gen_urls(views_module, app_name: str):
+def gen_urls_py(views_module, urls_path):
+    imports = gen_url_imports(import_views(views_module), "views")
+    urlpatterns = gen_urlpatterns(views_module, "example")
+
+    with open(f"{urls_path}", 'w') as file:
+        file.write(imports + "\n\n" + urlpatterns)
+
+
+def gen_urlpatterns(views_module, app_name: str):
     views = import_views(views_module)
     urlpatterns = []
 
