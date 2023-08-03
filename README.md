@@ -4,7 +4,5 @@
 Set of utilities and CLI tools to speed up django development
 and do repetitive stuff
 
-### Features
-- urlpatterns auto setting
-- code generation and scaffolding
-- 
+# THIS REPO IS UNDER CONSTRUCTION 🚧
+### first beta will be till september 2023
