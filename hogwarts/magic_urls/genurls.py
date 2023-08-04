@@ -1,6 +1,7 @@
 import re
 from inspect import isclass
 from typing import Tuple, Optional
+from dataclasses import dataclass
 
 from hogwarts.magic_urls._base import (
     import_views,
@@ -13,33 +14,39 @@ from hogwarts.magic_urls._base import (
 )
 
 
-def gen_urls_py(views_module, urls_path):
+@dataclass
+class UtilityPath:
+    path: str
+    view_name: str
+
+
+def gen_urls_py(views_module, urls_path: str, app_name):
     imports = gen_url_imports(import_views(views_module), "views")
-    urlpatterns = gen_urlpatterns(views_module, "example")
+    urlpatterns = gen_urlpatterns(views_module, app_name)
 
     with open(f"{urls_path}", 'w') as file:
         file.write(imports + "\n\n" + urlpatterns)
 
 
-def merge_urls_py(views_module, urls_path):
+def merge_urls_py(views_module, urls_path, app_name):
     file = open(urls_path, "r")
     code = file.read()
 
     imports, urlpatterns = separate_imports_and_urlpatterns(code)
-    app_name = get_app_name(code) or "example" # TODO fix this!
+    app_name = get_app_name(code) or app_name
     views = import_views(views_module)
-    paths = []
+    paths: list[UtilityPath] = []
 
     for view in views:
-        paths.append(gen_string_path(view, app_name))
+        paths.append(UtilityPath(gen_string_path(view, app_name), view.__name__))
 
     for view in views:
         if view.__name__ not in imports:
             imports = append_view_into_imports(imports, view)
 
     for path in paths:
-        if path not in urlpatterns:
-            urlpatterns = append_path_into_urlpatterns(urlpatterns, path)
+        if path.view_name not in urlpatterns:
+            urlpatterns = append_path_into_urlpatterns(urlpatterns, path.path)
 
     with open(urls_path, 'w') as file:
         file.write(imports + f'\n\napp_name = "{app_name}"\n' + urlpatterns)
