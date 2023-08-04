@@ -24,9 +24,9 @@ class Command(BaseCommand):
         urls_path = f'{app_config.path}\\urls.py'
 
         if merge:
-            merge_urls_py(views_module, urls_path)
+            merge_urls_py(views_module, urls_path, app_name)
         else:
-            gen_urls_py(views_module, urls_path)
+            gen_urls_py(views_module, urls_path, app_name)
 
         self.stdout.write(
             self.style.SUCCESS("Successfully generated urls 🔥")

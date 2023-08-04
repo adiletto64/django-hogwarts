@@ -22,10 +22,11 @@ class UtilityPath:
 
 def gen_urls_py(views_module, urls_path: str, app_name):
     imports = gen_url_imports(import_views(views_module), "views")
+    app_name = read_app_name_from_urls_py(urls_path) or app_name
     urlpatterns = gen_urlpatterns(views_module, app_name)
 
     with open(f"{urls_path}", 'w') as file:
-        file.write(imports + "\n\n" + urlpatterns)
+        file.write(imports + f'\n\n\napp_name = "{app_name}"' + urlpatterns)
 
 
 def merge_urls_py(views_module, urls_path, app_name):
@@ -186,3 +187,15 @@ def get_app_name(code: str) -> Optional[str]:
             return match.group(1)
 
     return None
+
+
+def urlpatterns_is_empty(code):
+    return bool(re.search(r'urlpatterns\s*=\s*\[\s*\]', code))
+
+
+def read_app_name_from_urls_py(urls_path: str):
+    file = open(urls_path, "r")
+    code = file.read()
+
+    imports, urlpatterns = separate_imports_and_urlpatterns(code)
+    return get_app_name(code)
