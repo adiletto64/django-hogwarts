@@ -1,18 +1,18 @@
-from ..magic_urls.genurls import gen_urlpatterns, gen_string_path, gen_url_imports
+from ..magic_urls.genurls import gen_urlpatterns, gen_path, gen_url_imports
 from ..magic_urls import custom_path
 
 from .. import _test_views
 
 
 def test_it_generates_path():
-    result = gen_string_path(_test_views.MyListView, "my")
+    result = gen_path(_test_views.MyListView, "my")
     expected = 'path("", MyListView.as_view(), name="list")'
 
     assert result == expected
 
 
 def test_it_generates_path_for_function():
-    result = gen_string_path(_test_views.confirm_post_view, "none")
+    result = gen_path(_test_views.confirm_post_view, "none")
     expected = 'path("confirm-post/", confirm_post_view, name="confirm_post")'
 
     assert result == expected
@@ -23,7 +23,7 @@ def test_it_extracts_metadata():
     class RedView:
         pass
 
-    result = gen_string_path(RedView, "none")
+    result = gen_path(RedView, "none")
     expected = 'path("green-hello/", RedView.as_view(), name="green")'
 
     assert result == expected

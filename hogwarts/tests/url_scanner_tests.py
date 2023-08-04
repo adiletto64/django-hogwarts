@@ -1,4 +1,4 @@
-from hogwarts.magic_urls.genurls import gen_string_path
+from hogwarts.magic_urls.genurls import gen_path
 from hogwarts.magic_urls.utils import extract_paths_from_urls_code, append_path_to_urls_code
 
 
@@ -36,7 +36,7 @@ urlpatterns = [
     class PostDetailView:
         pass
 
-    path = gen_string_path(PostDetailView, "post")
+    path = gen_path(PostDetailView, "post")
     result = append_path_to_urls_code(code, path)
 
     assert result == expected

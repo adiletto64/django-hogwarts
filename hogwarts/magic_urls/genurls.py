@@ -34,11 +34,14 @@ def merge_urls_py(views_module, urls_path, app_name):
 
     imports, urlpatterns = separate_imports_and_urlpatterns(code)
     app_name = get_app_name(code) or app_name
+
     views = import_views(views_module)
     paths: list[UtilityPath] = []
 
     for view in views:
-        paths.append(UtilityPath(gen_string_path(view, app_name), view.__name__))
+        path = gen_path(view, app_name)
+        view_name = view.__name__
+        paths.append(UtilityPath(path, view_name))
 
     for view in views:
         if view.__name__ not in imports:
@@ -53,9 +56,9 @@ def merge_urls_py(views_module, urls_path, app_name):
 
 
 def gen_url_imports(views: list[object], views_file_name: str):
-    string_views = ", ".join((view.__name__ for view in views))
+    view_names = ", ".join((view.__name__ for view in views))
 
-    return f"from django.urls import path\n\nfrom .{views_file_name} import {string_views}"
+    return f"from django.urls import path\n\nfrom .{views_file_name} import {view_names}"
 
 
 def gen_urlpatterns(views_module, app_name: str):
@@ -63,7 +66,7 @@ def gen_urlpatterns(views_module, app_name: str):
     urlpatterns = []
 
     for view in views:
-        urlpatterns.append(gen_string_path(view, app_name))
+        urlpatterns.append(gen_path(view, app_name))
 
     paths_string = ",\n    ".join(urlpatterns)
 
@@ -76,14 +79,22 @@ urlpatterns = [
     return result
 
 
-def gen_string_path(view, app_name) -> str:
+def gen_path(view, app_name) -> str:
     if has_path_decorator(view):
         path_name = get_decorator_path_name(view)
         path_url = get_decorator_path_url(view)
 
+        print(
+            f"info: You have provided @custom_path decorator in {view.__name__}"
+            f"don't forget to remove because it is not in use anymore"
+        )
+
     else:
         path_name = get_path_name(view, app_name)
-        path_url = get_path_url(path_name, detail=view_is_detail(view) if isclass(view) else False)
+        path_url = get_path_url(
+            path_name,
+            detail=view_is_detail(view) if isclass(view) else False
+        )
 
     if isclass(view):
         view_function = f"{view.__name__}.as_view()"
