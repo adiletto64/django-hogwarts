@@ -22,6 +22,7 @@ class UtilityPath:
 
 def gen_urls_py(views_module, urls_path: str, app_name):
     imports = gen_url_imports(import_views(views_module), "views")
+    # if app_name in urls use that otherwise given app name
     app_name = read_app_name_from_urls_py(urls_path) or app_name
     urlpatterns = gen_urlpatterns(views_module, app_name)
 
