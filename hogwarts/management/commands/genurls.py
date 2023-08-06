@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from rich.console import Console
 from rich.syntax import Syntax
 
-from hogwarts.magic_urls.genurls import gen_urls_py, merge_urls_py, urlpatterns_is_empty
+from hogwarts.magic_urls.genurls import UrlGenerator, urlpatterns_is_empty
 from .base import get_app_config, get_views_module
 
 
@@ -35,8 +35,10 @@ class Command(BaseCommand):
         app_config = get_app_config(app_name)
         urls_path = f'{app_config.path}\\urls.py'
 
+        url_generator = UrlGenerator(views_module, urls_path, app_name, force_new_app_name)
+
         if merge:
-            merge_urls_py(views_module, urls_path, app_name, force_new_app_name)
+            url_generator.merge_urls_py()
             console.print("new paths merged to urlpatterns ✅", style="green")
         else:
             code = open(urls_path, "r").read()
@@ -60,17 +62,17 @@ class Command(BaseCommand):
                         continue
 
                     if response == "m":
-                        merge_urls_py(views_module, urls_path, app_name, force_new_app_name)
+                        url_generator.merge_urls_py()
                         console.print("new paths merged to urlpatterns ✅", style="green")
 
                     elif response == "o":
-                        gen_urls_py(views_module, urls_path, app_name, force_new_app_name)
+                        url_generator.gen_urls_py()
                         console.print("urlpatterns have been generated ✅", style="green")
 
                     elif response == "c":
                         print("canceled")
                     return
             else:
-                gen_urls_py(views_module, urls_path, app_name, force_new_app_name)
+                url_generator.gen_urls_py()
                 console.print("urlpatterns have been generated ✅", style="green")
 
