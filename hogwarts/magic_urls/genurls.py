@@ -20,22 +20,25 @@ class UtilityPath:
     view_name: str
 
 
-def gen_urls_py(views_module, urls_path: str, app_name):
+def gen_urls_py(views_module, urls_path: str, app_name, force_app_name: bool):
     imports = gen_url_imports(import_views(views_module), "views")
-    # if app_name in urls use that otherwise given app name
-    app_name = read_app_name_from_urls_py(urls_path) or app_name
+    if not force_app_name:
+        app_name = read_app_name_from_urls_py(urls_path) or app_name
+
     urlpatterns = gen_urlpatterns(views_module, app_name)
 
     with open(f"{urls_path}", 'w') as file:
         file.write(imports + f'\n\n\napp_name = "{app_name}"' + urlpatterns)
 
 
-def merge_urls_py(views_module, urls_path, app_name):
+def merge_urls_py(views_module, urls_path, app_name, force_app_name: bool):
     file = open(urls_path, "r")
     code = file.read()
 
     imports, urlpatterns = separate_imports_and_urlpatterns(code)
-    app_name = get_app_name(code) or app_name
+
+    if not force_app_name:
+        app_name = get_app_name(code) or app_name
 
     views = import_views(views_module)
     paths: list[UtilityPath] = []

@@ -29,40 +29,48 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         app_name: str = options["app_name"]
         merge: bool = options["merge"]
+        force_new_app_name: bool = options["force_app_name"]
 
         views_module = get_views_module(app_name)
         app_config = get_app_config(app_name)
         urls_path = f'{app_config.path}\\urls.py'
 
         if merge:
-            merge_urls_py(views_module, urls_path, app_name)
+            merge_urls_py(views_module, urls_path, app_name, force_new_app_name)
             console.print("new paths merged to urlpatterns ✅", style="green")
         else:
             code = open(urls_path, "r").read()
             if not urlpatterns_is_empty(code):
+                # alert user that urls is not empty
                 console.print(
-                    "\nLooks like you have some paths in urlpatterns. 🚧"
+                    "\nLooks like you have some paths in urlpatterns. 🚧\n"
                     f"{urls_path}:",
                     style="bold yellow"
                 )
                 print("===================")
                 Console().print(Syntax(code, "python"))
                 print("===================")
+
+                # get user input until correct
                 while True:
                     print("Do you want fully override urls or merge?")
                     response = input("write (o)-override, (m)-merge or (c) to cancel: ")
                     if response not in ["m", "o", "c"]:
                         print("wrong command!")
                         continue
+
                     if response == "m":
-                        merge_urls_py(views_module, urls_path, app_name)
+                        merge_urls_py(views_module, urls_path, app_name, force_new_app_name)
                         console.print("new paths merged to urlpatterns ✅", style="green")
+
                     elif response == "o":
-                        gen_urls_py(views_module, urls_path, app_name)
+                        gen_urls_py(views_module, urls_path, app_name, force_new_app_name)
                         console.print("urlpatterns have been generated ✅", style="green")
+
                     elif response == "c":
                         print("canceled")
                     return
             else:
-                gen_urls_py(views_module, urls_path, app_name)
+                gen_urls_py(views_module, urls_path, app_name, force_new_app_name)
                 console.print("urlpatterns have been generated ✅", style="green")
+
