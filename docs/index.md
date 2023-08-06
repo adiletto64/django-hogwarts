@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: docs
-      link: /autourl
+      link: /installation
     - theme: alt
       text: github
       link: https://github.com/adiletto64/django_hogwarts

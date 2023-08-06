@@ -7,15 +7,16 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Docs', link: '/autourl' },
+      { text: 'Docs', link: '/installation' },
     ],
 
     sidebar: [
       {
         text: 'Features',
         items: [
-          { text: 'Auto urls resolving', link: '/autourl' },
-          { text: 'Auto urls generation', link: '/gen_urls' }
+          { text: 'Auto urls resolving', link: '/auto_urls' },
+          { text: 'Auto urls generation', link: '/gen_urls' },
+          { text: 'Conventions', link: '/conventions' }
         ]
       }
     ],
