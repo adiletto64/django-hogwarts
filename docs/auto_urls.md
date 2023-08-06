@@ -14,7 +14,7 @@ from . import views
 urlpatterns = []
 urlpatterns += auto_urls(views, app_name="products")
 ```
-::: tip
+::: info
 Look at [conventions](/conventions) to see what views you should write
 and what urls will be generated
 :::

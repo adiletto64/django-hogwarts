@@ -12,7 +12,13 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: 'Features',
+        text: 'getting started',
+        items: [
+          {'text': 'installation', link: '/installation'}
+        ]
+      },
+      {
+        text: 'urls',
         items: [
           { text: 'Auto urls resolving', link: '/auto_urls' },
           { text: 'Auto urls generation', link: '/gen_urls' },
