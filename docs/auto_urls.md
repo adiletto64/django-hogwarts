@@ -5,7 +5,7 @@
 
 import you view module (views.py) and pass to auto_urls function
 
-```python
+``` python
 from hogwarts.magic_urls import auto_urls
 
 from . import views
@@ -28,7 +28,7 @@ Use auto_path decorator to change path generation
 You can provide path name and detail if url param (`<int:pk>`) needed.
 Provide path_url for fully custom url
 
-```python
+``` python
 from hogwarts.magic_urls import custom_path
 
 @auto_path("push_over", detail=True)
