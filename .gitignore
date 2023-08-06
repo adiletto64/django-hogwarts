@@ -12,3 +12,4 @@ playground.ipynb
 .pytest_cache
 
 .ipynb_checkpoints
+dist
