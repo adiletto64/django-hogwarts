@@ -28,8 +28,14 @@ class UrlGenerator:
         self.force_app_name = force_app_name
 
     def gen_urls_py(self):
+        """
+        generates code for urls.py
+        fully overrides any existing code
+        """
         imports = gen_url_imports(import_views(self.views_module), "views")
-        app_name = ""
+
+        app_name = self.app_name
+        # if app name not forced try to get app_name variable from urls.py
         if not self.force_app_name:
             app_name = read_app_name_from_urls_py(self.urls_path) or self.app_name
 
@@ -39,12 +45,16 @@ class UrlGenerator:
             file.write(imports + f'\n\n\napp_name = "{app_name}"' + urlpatterns)
 
     def merge_urls_py(self):
+        """
+        adds views to existing imports and urlpatterns
+        """
         file = open(self.urls_path, "r")
         code = file.read()
 
         imports, urlpatterns = separate_imports_and_urlpatterns(code)
 
-        app_name = ""
+        app_name = self.app_name
+        # if app name not forced try to get app_name variable from urls.py
         if not self.force_app_name:
             app_name = get_app_name(code) or self.app_name
 
@@ -53,8 +63,7 @@ class UrlGenerator:
 
         for view in views:
             path = gen_path(view, app_name)
-            view_name = view.__name__
-            paths.append(UtilityPath(path, view_name))
+            paths.append(UtilityPath(path, view.__name__))
 
         for view in views:
             if view.__name__ not in imports:
