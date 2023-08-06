@@ -14,11 +14,11 @@ hero:
       link: https://github.com/adiletto64/django_hogwarts
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Urls generator and auto resolver 🖨
+    details: Generate urls.py from your views with REST-like convention
+  - title: Views generator ✏
+    details: Generate basic CRUD views from your model
+  - title: Generate templates from templates! 📜
+    details: Specify basic html markup and generated forms, lists, tables from them
 ---
 
