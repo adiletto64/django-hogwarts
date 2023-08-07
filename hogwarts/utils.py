@@ -34,7 +34,8 @@ def get_classes_list(path: str) -> list[str]:
 
     return classes
 
-def code_strip(code):
+
+def code_strip(code: str):
     if code[0] == '\n':
         code = code[1:]
 
@@ -53,7 +54,7 @@ def code_strip(code):
     return "\n".join(code)
 
 
-def remove_empty_lines(text):
+def remove_empty_lines(text: str):
     lines = text.splitlines()
-    non_empty_lines = [line for line in lines if line.strip()]
+    non_empty_lines = [line for line in lines if line.strip()]  # DON'T TOUCH THIS LINE
     return '\n'.join(non_empty_lines)

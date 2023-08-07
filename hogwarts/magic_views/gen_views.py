@@ -41,10 +41,10 @@ class ViewGenerator:
         self.add_class(f"{self.model_name}ListView")
         return self.base_view("list", False, True)
 
-    def gen_create_view(self, mixins: Optional[list[str]] = None):
+    def gen_create_view(self):
         self.imports.append("CreateView")
         self.add_class(f"{self.model_name}CreateView")
-        return self.base_view("create", True, False, mixins=mixins)
+        return self.base_view("create", True, False)
 
     def gen_update_view(self):
         self.imports.append("UpdateView")
@@ -67,16 +67,27 @@ class ViewGenerator:
         action_view = f"{action.capitalize()}View"
         object_name = name if detail else to_plural(name)
         template_name = f"{to_plural(name)}/{name}_{action.lower()}.html"
+        inherits = ""
+        if mixins:
+            inherits += ", ".join(mixins) + ", "
+        inherits += action_view
 
         result = f"""
-        class {self.model_name}{action_view}({action_view}):
+        class {self.model_name}{action_view}({inherits}):
             model = {self.model_name}
             {f'fields = {str(self.field_names)}' if fields else ''}
             {f'context_object_name = "{object_name}"' if context else ''}
             template_name = "{template_name}"
         """
 
-        return remove_empty_lines(result) + "\n"
+        result = remove_empty_lines(result)
+
+        if extra_code:
+            extra_code = "\n".join(map(lambda line: " " * 8 + line, extra_code.splitlines()))
+            extra_code = remove_empty_lines(extra_code)
+            result += f"\n\n{extra_code}"
+
+        return result + "\n"
 
     def add_class(self, class_name: str):
         if class_name not in self.class_names:

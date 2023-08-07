@@ -2,6 +2,7 @@ from ..magic_urls.gen_urls import gen_urlpatterns, gen_path, gen_url_imports
 from ..magic_urls import custom_path
 
 from .. import _test_views
+from ..utils import code_strip
 
 
 def test_it_generates_path():
@@ -52,6 +53,9 @@ def test_it_generates_imports():
         _test_views.get_view
     ], "_test_views")
 
-    expected = """from ._test_views import MyListView, MyFormView, get_view"""
+    expected = """
+        from django.urls import path
+    
+        from ._test_views import MyListView, MyFormView, get_view"""
 
-    assert result == expected
+    assert code_strip(result) == code_strip(expected)

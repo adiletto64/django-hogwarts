@@ -55,13 +55,41 @@ def test_it_generated_update_view():
 
 
 def test_it_adds_mixin():
-    code = generator.gen_create_view(mixins=["LoginRequiredMixin"])
+    code = generator.base_view("create", True, False, mixins=["LoginRequiredMixin"])
     expected_code = """
     class ArticleCreateView(LoginRequiredMixin, CreateView):
         model = Article
         fields = ['id', 'title', 'description', 'created_at', 'beta']
         template_name = "articles/article_create.html"
     """
+
+    assert code_strip(code) == code_strip(expected_code)
+
+
+def test_it_adds_extra_code():
+    extra_code = """
+    def test_func(self):
+        return self.request.user == self.get_object().user   
+    def one_more(self):
+        pass
+    """
+    code = generator.base_view("create", True, False, extra_code=extra_code)
+
+    expected_code = """
+    class ArticleCreateView(CreateView):
+        model = Article
+        fields = ['id', 'title', 'description', 'created_at', 'beta']
+        template_name = "articles/article_create.html"
+        
+        def test_func(self):
+            return self.request.user == self.get_object().user         
+        def one_more(self):
+            pass
+    """
+
+    print(code_strip(code))
+    print("====")
+    print(code_strip(expected_code))
 
     assert code_strip(code) == code_strip(expected_code)
 
@@ -73,8 +101,8 @@ def test_code_gen_imports():
 
     imports = ["UpdateView", "DetailView", "Article"]
     imports_code = """
-    from django.views.generic import UpdateView, DetailView
-    from .models import Article
+        from django.views.generic import UpdateView, DetailView
+        from .models import Article
     """
 
     assert set(gen.imports) == set(imports)
