@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from rich.console import Console
 from rich.syntax import Syntax
 
-from hogwarts.magic_urls.genurls import UrlGenerator, urlpatterns_is_empty
+from hogwarts.magic_urls.gen_urls import UrlGenerator, urlpatterns_is_empty
 from .base import get_app_config, get_views_module
 
 

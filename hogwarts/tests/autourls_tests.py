@@ -3,7 +3,7 @@ from django.views import View
 
 from .. import _test_views
 from .._test_views import MyFormView, MyListView, get_view, post_view, confirm_post_view
-from ..magic_urls.autourls import (
+from ..magic_urls.auto_urls import (
     get_path,
     get_path_name,
     import_views,

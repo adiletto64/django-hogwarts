@@ -1,4 +1,4 @@
-from ..magic_urls.genurls import gen_urlpatterns, gen_path, gen_url_imports
+from ..magic_urls.gen_urls import gen_urlpatterns, gen_path, gen_url_imports
 from ..magic_urls import custom_path
 
 from .. import _test_views

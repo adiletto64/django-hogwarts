@@ -1,4 +1,4 @@
-from hogwarts.codegen import ViewGenerator, insert_code
+from hogwarts.magic_views import ViewGenerator, insert_code
 
 from ..models import Article
 from ..utils import code_strip
@@ -49,6 +49,18 @@ def test_it_generated_update_view():
         model = Article
         fields = ['id', 'title', 'description', 'created_at', 'beta']
         template_name = "articles/article_update.html"
+    """
+
+    assert code_strip(code) == code_strip(expected_code)
+
+
+def test_it_adds_mixin():
+    code = generator.gen_create_view(mixins=["LoginRequiredMixin"])
+    expected_code = """
+    class ArticleCreateView(LoginRequiredMixin, CreateView):
+        model = Article
+        fields = ['id', 'title', 'description', 'created_at', 'beta']
+        template_name = "articles/article_create.html"
     """
 
     assert code_strip(code) == code_strip(expected_code)

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
-from django.apps import apps
 
-from hogwarts.codegen import generate_views
+from .base import get_app_config
+from hogwarts.magic_views import generate_views
 
 
 class Command(BaseCommand):
@@ -14,17 +14,11 @@ class Command(BaseCommand):
         app_name: str = options["app"]
         model_name: str = options["model"]
 
-        app_names = [_app.name for _app in apps.get_app_configs()]
-
-        if app_name not in app_names:
-            raise CommandError(f"Provided app '{app_name}' does not exist")
-
-        app_config = apps.get_app_config(app_name)
-
-        if model_name.lower() not in app_config.models.keys():
+        app_config = get_app_config(app_name)
+        model = app_config.models.get(model_name.lower())
+        if model is None:
             raise CommandError(f"Provided model '{model_name}' does not exist in app '{app_name}'")
 
-        model = app_config.models.get(model_name.lower())
         code = generate_views(model)
 
         path = f'{app_config.path}\\generated_views.py'

@@ -1,9 +1,10 @@
-from typing import Type
+from typing import Type, Optional
 from dataclasses import dataclass
 
 from django.db import models
 
-from .utils import to_plural, code_strip, remove_empty_lines
+from ..utils import to_plural, code_strip, remove_empty_lines
+
 
 @dataclass
 class ClassView:
@@ -40,19 +41,29 @@ class ViewGenerator:
         self.add_class(f"{self.model_name}ListView")
         return self.base_view("list", False, True)
 
-
-    def gen_create_view(self):
+    def gen_create_view(self, mixins: Optional[list[str]] = None):
         self.imports.append("CreateView")
         self.add_class(f"{self.model_name}CreateView")
-        return self.base_view("create", True, False)
+        return self.base_view("create", True, False, mixins=mixins)
 
     def gen_update_view(self):
         self.imports.append("UpdateView")
         self.add_class(f"{self.model_name}UpdateView")
         return self.base_view("update", True, False)
 
-    def base_view(self, action: str, fields: bool, context: bool, detail: bool = False):
+    def base_view(
+            self,
+            action: str,
+            fields: bool,
+            context: bool,
+            detail: bool = False,
+            mixins: Optional[list[str]] = None,
+            extra_code: Optional[str] = None
+    ):
+        if mixins is None:
+            mixins = []
         name = self.model_name_lower
+
         action_view = f"{action.capitalize()}View"
         object_name = name if detail else to_plural(name)
         template_name = f"{to_plural(name)}/{name}_{action.lower()}.html"

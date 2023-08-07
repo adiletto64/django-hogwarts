@@ -1,4 +1,4 @@
-from hogwarts.magic_urls.genurls import gen_path
+from hogwarts.magic_urls.gen_urls import gen_path
 from hogwarts.magic_urls.utils import extract_paths_from_urls_code, append_path_to_urls_code
 
 
