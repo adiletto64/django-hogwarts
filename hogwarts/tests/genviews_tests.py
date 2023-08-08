@@ -1,4 +1,4 @@
-from hogwarts.magic_views import ViewGenerator, insert_code
+from hogwarts.magic_views import ViewGenerator, merge_views_and_imports
 
 from ..models import Article
 from ..utils import code_strip
@@ -35,7 +35,7 @@ def test_it_generated_create_view():
     expected_code = """
     class ArticleCreateView(CreateView):
         model = Article
-        fields = ['id', 'title', 'description', 'created_at', 'beta']
+        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
         template_name = "articles/article_create.html"
     """
 
@@ -47,7 +47,7 @@ def test_it_generated_update_view():
     expected_code = """
     class ArticleUpdateView(UpdateView):
         model = Article
-        fields = ['id', 'title', 'description', 'created_at', 'beta']
+        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
         template_name = "articles/article_update.html"
     """
 
@@ -59,7 +59,7 @@ def test_it_adds_mixin():
     expected_code = """
     class ArticleCreateView(LoginRequiredMixin, CreateView):
         model = Article
-        fields = ['id', 'title', 'description', 'created_at', 'beta']
+        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
         template_name = "articles/article_create.html"
     """
 
@@ -78,7 +78,7 @@ def test_it_adds_extra_code():
     expected_code = """
     class ArticleCreateView(CreateView):
         model = Article
-        fields = ['id', 'title', 'description', 'created_at', 'beta']
+        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
         template_name = "articles/article_create.html"
         
         def test_func(self):
@@ -114,7 +114,7 @@ def test_it_inserts_code():
     create_code = gen.gen_create_view()
     detail_code = gen.gen_detail_view()
 
-    new_code = insert_code([create_code, detail_code], gen.get_imports_code())
+    new_code = merge_views_and_imports([create_code, detail_code], gen.get_imports_code())
 
     expected_code = """
     from django.views.generic import CreateView, DetailView
@@ -122,7 +122,7 @@ def test_it_inserts_code():
     
     class ArticleCreateView(CreateView):
         model = Article
-        fields = ['id', 'title', 'description', 'created_at', 'beta']
+        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
         template_name = "articles/article_create.html"
     
     class ArticleDetailView(DetailView):
@@ -136,3 +136,4 @@ def test_it_inserts_code():
     print(code_strip(expected_code))
 
     assert code_strip(new_code) == code_strip(expected_code)
+

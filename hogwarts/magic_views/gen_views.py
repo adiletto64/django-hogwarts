@@ -1,16 +1,28 @@
-from typing import Type, Optional
-from dataclasses import dataclass
+from typing import Type, Optional, Tuple
 
 from django.db import models
 
 from ..utils import to_plural, code_strip, remove_empty_lines
 
 
-@dataclass
-class ClassView:
-    imports: set[str]
-    name: str
-    code: str
+def generate_views(model: Type[models.Model]):
+    gen = ViewGenerator(model)
+
+    detail = gen.gen_detail_view()
+    _list = gen.gen_list_view()
+    create = gen.gen_create_view()
+    update = gen.gen_update_view()
+
+    return merge_views_and_imports([detail, _list, create, update], gen.get_imports_code())
+
+
+def merge_views_and_imports(view_code_blocks: list[str], imports: str):
+    origin_code = code_strip(imports)
+
+    for code in view_code_blocks:
+        origin_code += f"\n{code_strip(code)}"
+
+    return origin_code
 
 
 class ViewGenerator:
@@ -19,63 +31,58 @@ class ViewGenerator:
         self.model_name = model.__name__
         self.model_name_lower = self.model_name.lower()
 
-        self.fields = model._meta.fields
-        self.field_names = [field.name for field in self.fields]
-        self.imports = [self.model_name]
-        self.class_names = []
+        self.generic_views = []
+        self.extra_imports = []
 
     def get_imports_code(self):
-        imports = self.imports[1:]
-        return f"""
-        from django.views.generic import {", ".join(imports)}
-        from .models import {self.model_name}
-        """
+        imports_generator = ImportsGenerator()
+        imports_generator.add_bulk("django.views.generic", self.generic_views)
+        imports_generator.add(".models", self.model_name)
+
+        return imports_generator.gen()
 
     def gen_detail_view(self):
-        self.imports.append("DetailView")
-        self.add_class(f"{self.model_name}DetailView")
+        self.generic_views.append("DetailView")
         return self.base_view("detail", False, True, True)
 
     def gen_list_view(self):
-        self.imports.append("ListView")
-        self.add_class(f"{self.model_name}ListView")
+        self.generic_views.append("ListView")
         return self.base_view("list", False, True)
 
     def gen_create_view(self):
-        self.imports.append("CreateView")
-        self.add_class(f"{self.model_name}CreateView")
+        self.generic_views.append("CreateView")
         return self.base_view("create", True, False)
 
     def gen_update_view(self):
-        self.imports.append("UpdateView")
-        self.add_class(f"{self.model_name}UpdateView")
+        self.generic_views.append("UpdateView")
         return self.base_view("update", True, False)
 
     def base_view(
             self,
             action: str,
-            fields: bool,
+            set_fields: bool,
             context: bool,
             detail: bool = False,
-            mixins: Optional[list[str]] = None,
+            mixins: list[str] = [],
             extra_code: Optional[str] = None
     ):
-        if mixins is None:
-            mixins = []
         name = self.model_name_lower
 
-        action_view = f"{action.capitalize()}View"
+        class_name = f"{self.model_name}{action.capitalize()}View"
         object_name = name if detail else to_plural(name)
         template_name = f"{to_plural(name)}/{name}_{action.lower()}.html"
         inherits = ""
         if mixins:
             inherits += ", ".join(mixins) + ", "
-        inherits += action_view
+        inherits += f"{action.capitalize()}View"
+
+        fields = self.model._meta.fields
+        field_names = [field.name for field in fields]
 
         result = f"""
-        class {self.model_name}{action_view}({inherits}):
+        class {class_name}({inherits}):
             model = {self.model_name}
-            {f'fields = {str(self.field_names)}' if fields else ''}
+            {f'fields = {str(field_names)}' if set_fields else ''}
             {f'context_object_name = "{object_name}"' if context else ''}
             template_name = "{template_name}"
         """
@@ -89,26 +96,36 @@ class ViewGenerator:
 
         return result + "\n"
 
-    def add_class(self, class_name: str):
-        if class_name not in self.class_names:
-            self.class_names.append(class_name)
+    @property
+    def imports(self):
+        return [self.model_name] + self.generic_views
 
 
-def insert_code(code_blocks: list[str], imports: str):
-    origin_code = code_strip(imports)
-
-    for code in code_blocks:
-        origin_code += f"\n{code_strip(code)}"
-
-    return origin_code
+Imports = list[Tuple[str, str]]
 
 
-def generate_views(model: Type[models.Model]):
-    gen = ViewGenerator(model)
+class ImportsGenerator:
+    def __init__(self):
+        self.imports: Imports = []
 
-    detail = gen.gen_detail_view()
-    _list = gen.gen_list_view()
-    create = gen.gen_create_view()
-    update = gen.gen_update_view()
+    def add(self, module, obj):
+        self.imports.append((module, obj))
 
-    return insert_code([detail, _list, create, update], gen.get_imports_code())
+    def add_bulk(self, module, objs: list[str]):
+        for obj in objs:
+            self.add(module, obj)
+
+    def gen(self):
+        merged_imports = {}
+
+        for module, obj in self.imports:
+            if module not in merged_imports.keys():
+                merged_imports[module] = [obj]
+            else:
+                merged_imports[module].append(obj)
+
+        result = ""
+        for module, obj in merged_imports.items():
+            result += f"from {module} import {', '.join(obj)}\n"
+
+        return result
