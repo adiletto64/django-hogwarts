@@ -3,11 +3,11 @@ from hogwarts.magic_views import ViewGenerator, merge_views_and_imports
 from ..models import Article
 from ..utils import code_strip
 
+
 generator = ViewGenerator(Article)
 
-
 def test_it_generates_detail_view():
-    code = generator.gen_detail_view()
+    code = generator.detail()
     expected_code = """
     class ArticleDetailView(DetailView):
         model = Article
@@ -19,7 +19,7 @@ def test_it_generates_detail_view():
 
 
 def test_it_generates_list_view():
-    code = generator.gen_list_view()
+    code = generator.list()
     expected_code = """
     class ArticleListView(ListView):
         model = Article
@@ -31,109 +31,116 @@ def test_it_generates_list_view():
 
 
 def test_it_generated_create_view():
-    code = generator.gen_create_view()
+    code = generator.create()
     expected_code = """
     class ArticleCreateView(CreateView):
         model = Article
-        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
+        fields = ["id", "author", "title", "description", "created_at", "beta"]
         template_name = "articles/article_create.html"
+        success_url = "/"
     """
 
     assert code_strip(code) == code_strip(expected_code)
 
 
 def test_it_generated_update_view():
-    code = generator.gen_update_view()
+    code = generator.update()
     expected_code = """
     class ArticleUpdateView(UpdateView):
         model = Article
-        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
+        fields = ["id", "author", "title", "description", "created_at", "beta"]
         template_name = "articles/article_update.html"
+        success_url = "/"
     """
 
     assert code_strip(code) == code_strip(expected_code)
 
 
-def test_it_adds_mixin():
-    code = generator.base_view("create", True, False, mixins=["LoginRequiredMixin"])
+smart_generator = ViewGenerator(Article, smart_mode=True)
+
+
+def test_smart_mode_create_view():
+    code = smart_generator.create()
     expected_code = """
     class ArticleCreateView(LoginRequiredMixin, CreateView):
         model = Article
-        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
+        fields = ["id", "author", "title", "description", "created_at", "beta"]
         template_name = "articles/article_create.html"
+        success_url = "/"
+        
+        def form_valid(self, form):
+            form.instance.author = self.request.user
+            return super().form_valid(form)
     """
 
     assert code_strip(code) == code_strip(expected_code)
 
 
-def test_it_adds_extra_code():
-    extra_code = """
-    def test_func(self):
-        return self.request.user == self.get_object().user   
-    def one_more(self):
-        pass
-    """
-    code = generator.base_view("create", True, False, extra_code=extra_code)
-
+def test_smart_mode_update_view():
+    code = smart_generator.update()
     expected_code = """
-    class ArticleCreateView(CreateView):
+    class ArticleUpdateView(UserPassesTestMixin, UpdateView):
         model = Article
-        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
-        template_name = "articles/article_create.html"
+        fields = ["id", "author", "title", "description", "created_at", "beta"]
+        template_name = "articles/article_update.html"
+        success_url = "/"
         
         def test_func(self):
-            return self.request.user == self.get_object().user         
-        def one_more(self):
-            pass
+            return self.get_object() == self.request.user
     """
-
-    print(code_strip(code))
-    print("====")
-    print(code_strip(expected_code))
 
     assert code_strip(code) == code_strip(expected_code)
 
 
-def test_code_gen_imports():
-    gen = ViewGenerator(Article)
-    gen.gen_update_view()
-    gen.gen_detail_view()
-
-    imports = ["UpdateView", "DetailView", "Article"]
-    imports_code = """
-        from django.views.generic import UpdateView, DetailView
-        from .models import Article
-    """
-
-    assert set(gen.imports) == set(imports)
-    assert code_strip(gen.get_imports_code()) == code_strip(imports_code)
+namespace_generator = ViewGenerator(Article, model_is_namespace=True)
 
 
-def test_it_inserts_code():
-    gen = ViewGenerator(Article)
-    create_code = gen.gen_create_view()
-    detail_code = gen.gen_detail_view()
-
-    new_code = merge_views_and_imports([create_code, detail_code], gen.get_imports_code())
-
+def test_namespace_create_view():
+    code = namespace_generator.create()
     expected_code = """
-    from django.views.generic import CreateView, DetailView
-    from .models import Article
-    
     class ArticleCreateView(CreateView):
         model = Article
-        fields = ['id', 'author', 'title', 'description', 'created_at', 'beta']
+        fields = ["id", "author", "title", "description", "created_at", "beta"]
         template_name = "articles/article_create.html"
     
-    class ArticleDetailView(DetailView):
-        model = Article
-        context_object_name = "article"
-        template_name = "articles/article_detail.html"
+        def get_success_url(self):
+            return reverse("articles:detail", args=[self.object.id])
     """
 
-    print(new_code)
-    print("======")
-    print(code_strip(expected_code))
+    assert code_strip(code) == code_strip(expected_code)
 
-    assert code_strip(new_code) == code_strip(expected_code)
 
+def test_namespace_update_view():
+    code = namespace_generator.update()
+    expected_code = """
+    class ArticleUpdateView(UpdateView):
+        model = Article
+        fields = ["id", "author", "title", "description", "created_at", "beta"]
+        template_name = "articles/article_update.html"
+        
+        def get_success_url(self):
+            return reverse("articles:detail", args=[self.get_object().id])
+    """
+
+    assert code_strip(code) == code_strip(expected_code)
+
+
+def test_smart_mode_and_namespace_does_not_conflict():
+    universal_generator = ViewGenerator(Article, smart_mode=True, model_is_namespace=True)
+    code = universal_generator.create()
+
+    expected_code = """
+    class ArticleCreateView(LoginRequiredMixin, CreateView):
+        model = Article
+        fields = ["id", "author", "title", "description", "created_at", "beta"]
+        template_name = "articles/article_create.html"
+        
+        def form_valid(self, form):
+            form.instance.author = self.request.user
+            return super().form_valid(form)
+
+        def get_success_url(self):
+            return reverse("articles:detail", args=[self.object.id])
+    """
+
+    assert code_strip(code) == code_strip(expected_code)

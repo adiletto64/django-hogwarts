@@ -8,12 +8,12 @@ from ..utils import to_plural, code_strip, remove_empty_lines
 def generate_views(model: Type[models.Model]):
     gen = ViewGenerator(model)
 
-    detail = gen.gen_detail_view()
-    _list = gen.gen_list_view()
-    create = gen.gen_create_view()
-    update = gen.gen_update_view()
+    detail = gen.detail()
+    _list = gen.list()
+    create = gen.create()
+    update = gen.update()
 
-    return merge_views_and_imports([detail, _list, create, update], gen.get_imports_code())
+    return merge_views_and_imports([detail, _list, create, update], gen.gen_imports())
 
 
 def merge_views_and_imports(view_code_blocks: list[str], imports: str):
@@ -26,79 +26,150 @@ def merge_views_and_imports(view_code_blocks: list[str], imports: str):
 
 
 class ViewGenerator:
-    def __init__(self, model: Type[models.Model]):
-        self.model = model
+    def __init__(self, model, smart_mode=False, model_is_namespace=False):
         self.model_name = model.__name__
-        self.model_name_lower = self.model_name.lower()
-
+        self.name = model.__name__.lower()
+        self.fields = [field.name for field in model._meta.fields]
+        self.imports_generator = ImportsGenerator()
         self.generic_views = []
-        self.extra_imports = []
+        self.smart_mode = smart_mode
+        self.model_is_namespace = model_is_namespace
 
-    def get_imports_code(self):
-        imports_generator = ImportsGenerator()
-        imports_generator.add_bulk("django.views.generic", self.generic_views)
-        imports_generator.add(".models", self.model_name)
+    def gen_imports(self):
+        self.imports_generator = ImportsGenerator()
+        self.imports_generator.add_bulk("django.views.generic", self.generic_views)
+        self.imports_generator.add(".models", self.model_name)
 
-        return imports_generator.gen()
+        return self.imports_generator.gen()
 
-    def gen_detail_view(self):
-        self.generic_views.append("DetailView")
-        return self.base_view("detail", False, True, True)
-
-    def gen_list_view(self):
-        self.generic_views.append("ListView")
-        return self.base_view("list", False, True)
-
-    def gen_create_view(self):
+    def create(self):
         self.generic_views.append("CreateView")
-        return self.base_view("create", True, False)
 
-    def gen_update_view(self):
+        builder = self.get_builder("create")
+
+        if self.smart_mode:
+            self.imports_generator.add_login_required()
+            builder = self.get_builder("create", ["LoginRequiredMixin"])
+
+        builder.add_fields(self.fields)
+        self.add_template(builder, "create")
+        if not self.model_is_namespace:
+            builder.add_success_url("/")
+
+        if self.smart_mode:
+            for field in self.fields:
+                if field in ["user", "author", "owner", "creator"]:
+                    function = f"""
+                    def form_valid(self, form):
+                        form.instance.{field} = self.request.user
+                        return super().form_valid(form)
+                    """
+                    builder.add_extra_code(code_strip(function))
+                    break
+
+        if self.model_is_namespace:
+            self.imports_generator.add_reverse()
+            function = f"""
+            def get_success_url(self):
+                return reverse("{to_plural(self.name)}:detail", args=[self.object.id])
+            """
+            builder.add_extra_code(code_strip(function))
+
+        return builder.result
+
+    def update(self):
         self.generic_views.append("UpdateView")
-        return self.base_view("update", True, False)
+        builder = self.get_builder("update")
 
-    def base_view(
-            self,
-            action: str,
-            set_fields: bool,
-            context: bool,
-            detail: bool = False,
-            mixins: list[str] = [],
-            extra_code: Optional[str] = None
-    ):
-        name = self.model_name_lower
+        if self.smart_mode:
+            self.imports_generator.add_user_test()
+            builder = self.get_builder("update", ["UserPassesTestMixin"])
 
-        class_name = f"{self.model_name}{action.capitalize()}View"
-        object_name = name if detail else to_plural(name)
-        template_name = f"{to_plural(name)}/{name}_{action.lower()}.html"
-        inherits = ""
-        if mixins:
-            inherits += ", ".join(mixins) + ", "
-        inherits += f"{action.capitalize()}View"
+        builder.add_fields(self.fields)
+        self.add_template(builder, "update")
+        if not self.model_is_namespace:
+            builder.add_success_url("/")
 
-        fields = self.model._meta.fields
-        field_names = [field.name for field in fields]
+        if self.smart_mode:
+            for field in self.fields:
+                if field in ["user", "author", "owner", "creator"]:
+                    function = f"""
+                    def test_func(self):
+                        return self.get_object() == self.request.user
+                    """
+                    builder.add_extra_code(code_strip(function))
+                    break
 
-        result = f"""
-        class {class_name}({inherits}):
-            model = {self.model_name}
-            {f'fields = {str(field_names)}' if set_fields else ''}
-            {f'context_object_name = "{object_name}"' if context else ''}
-            template_name = "{template_name}"
-        """
+        if self.model_is_namespace:
+            self.imports_generator.add_reverse()
+            function = f"""
+            def get_success_url(self):
+                return reverse("{to_plural(self.name)}:detail", args=[self.get_object().id])
+            """
+            builder.add_extra_code(code_strip(function))
 
-        result = remove_empty_lines(result)
+        return builder.result
 
-        if extra_code:
-            extra_code = "\n".join(map(lambda line: " " * 8 + line, extra_code.splitlines()))
-            extra_code = remove_empty_lines(extra_code)
-            result += f"\n\n{extra_code}"
+    def detail(self):
+        self.generic_views.append("DetailView")
+        builder = self.get_builder("detail")
+        builder.add_context_object_name(self.name)
+        self.add_template(builder, "detail")
 
-        return result + "\n"
+        return builder.result
 
-    @property
-    def imports(self):
-        return [self.model_name] + self.generic_views
+    def list(self):
+        self.generic_views.append("ListView")
+        builder = self.get_builder("list")
+        builder.add_context_object_name(to_plural(self.name))
+        self.add_template(builder, "list")
+
+        return builder.result
+
+    def get_builder(self, action, mixins=[]):
+        builder = ClassViewBuilder(self.model_name)
+        builder.add_class(action, mixins)
+        builder.add_model()
+
+        return builder
+
+    def add_template(self, builder, action):
+        builder.add_template_name(f"{to_plural(self.name)}/{self.name}_{action}.html")
+
+
+class ClassViewBuilder:
+    def __init__(self, model_name):
+        self.model_name = model_name
+        self.result = ""
+
+    def add_class(self, action, mixins=[]):
+        action = action.capitalize()
+        class_name = f"{self.model_name}{action}View"
+        inherits = [*mixins, f"{action}View"]
+
+        self.result += f"class {class_name}({', '.join(inherits)}):\n"
+
+    def add_model(self):
+        self.result += f'    model = {self.model_name}\n'
+
+    def add_fields(self, fields: list[str]):
+        fields = [f'"{field}"' for field in fields]
+        self.result += f"    fields = [{', '.join(fields)}]\n"
+
+    def add_context_object_name(self, name):
+        self.result += f'    context_object_name = "{name}"\n'
+
+    def add_template_name(self, name):
+        self.result += f'    template_name = "{name}"\n'
+
+    def add_success_url(self, url):
+        self.result += f'    success_url = "{url}"\n'
+
+    def add_extra_code(self, extra_code):
+        extra_code = "\n".join(map(lambda line: " " * 4 + line, extra_code.splitlines()))
+        extra_code = remove_empty_lines(extra_code)
+
+        self.result += f"\n{extra_code}\n"
 
 
 Imports = list[Tuple[str, str]]
@@ -114,6 +185,29 @@ class ImportsGenerator:
     def add_bulk(self, module, objs: list[str]):
         for obj in objs:
             self.add(module, obj)
+
+    def add_login_required(self):
+        obj = "LoginRequiredMixin"
+        if not self.exists(obj):
+            self.add("django.contrib.auth.mixins", obj)
+
+    def add_user_test(self):
+        obj = "UserPassesTestMixin"
+        if not self.exists(obj):
+            self.add("django.contrib.auth.mixins", obj)
+
+    def add_reverse(self):
+        obj = "reverse"
+        if not self.exists(obj):
+            self.add("django.shortcuts", obj)
+
+    def add_reverse_lazy(self):
+        obj = "reverse_lazy"
+        if not self.exists(obj):
+            self.add("django.shortcuts", obj)
+
+    def exists(self, obj: str):
+        return any(i[1] == obj for i in self.imports)
 
     def gen(self):
         merged_imports = {}
