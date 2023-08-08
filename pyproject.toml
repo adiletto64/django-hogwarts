@@ -4,9 +4,9 @@ version = "0.1.1"
 description = "Django utilities for codegen and DX improvement"
 authors = ["adiletto64 <adiletdj19@gmail.com>"]
 packages = [{ include = "hogwarts" }]
-homepage = "https://github.com/adiletto64/django_hogwarts"
+homepage = "https://github.com/adiletto64/django-hogwarts"
 readme = "README.md"
-repository = "https://github.com/adiletto64/django_hogwarts"
+repository = "https://github.com/adiletto64/django-hogwarts"
 documentation = "https://django-hogwarts.vercel.app/"
 keywords = ["django", "django-utils", "codegen"]
 
