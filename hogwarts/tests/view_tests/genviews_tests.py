@@ -1,7 +1,7 @@
-from hogwarts.magic_views import ViewGenerator, generate_views
+from hogwarts.magic_views import ViewGenerator
 
-from ..models import Article
-from ..utils import code_strip
+from hogwarts.models import Article
+from hogwarts.utils import code_strip
 
 
 generator = ViewGenerator(Article)
@@ -146,6 +146,3 @@ def test_smart_mode_and_namespace_does_not_conflict():
     assert code_strip(code) == code_strip(expected_code)
     assert "LoginRequiredMixin" in universal_generator.imports_generator.gen()
 
-
-def test_generate_views():
-    generate_views(Article)

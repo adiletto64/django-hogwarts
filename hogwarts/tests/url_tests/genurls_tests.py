@@ -1,8 +1,8 @@
-from ..magic_urls.gen_urls import gen_urlpatterns, gen_path, gen_url_imports
-from ..magic_urls import custom_path
+from hogwarts.magic_urls.gen_urls import gen_urlpatterns, gen_path, gen_url_imports
+from hogwarts.magic_urls import custom_path
 
-from .. import _test_views
-from ..utils import code_strip
+from hogwarts import _test_views
+from hogwarts.utils import code_strip
 
 
 def test_it_generates_path():

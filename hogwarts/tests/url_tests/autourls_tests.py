@@ -1,15 +1,15 @@
 from django.urls import path
 from django.views import View
 
-from .. import _test_views
-from .._test_views import MyFormView, MyListView, get_view, post_view, confirm_post_view
-from ..magic_urls.auto_urls import (
+from hogwarts import _test_views
+from hogwarts._test_views import MyFormView, MyListView, get_view, post_view, confirm_post_view
+from hogwarts.magic_urls.auto_urls import (
     get_path,
     get_path_name,
     import_views,
 )
-from ..magic_urls import custom_path
-from ..magic_urls._base import get_path_url
+from hogwarts.magic_urls import custom_path
+from hogwarts.magic_urls._base import get_path_url
 
 
 class ProductCreateView(View): pass
