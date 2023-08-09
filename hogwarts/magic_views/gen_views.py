@@ -5,8 +5,8 @@ from django.db import models
 from ..utils import to_plural, code_strip, remove_empty_lines
 
 
-def generate_views(model: Type[models.Model]):
-    gen = ViewGenerator(model)
+def generate_views(model: Type[models.Model], smart_mode=False, model_is_namespace=False):
+    gen = ViewGenerator(model, smart_mode, model_is_namespace)
 
     detail = gen.detail()
     _list = gen.list()
@@ -20,7 +20,7 @@ def merge_views_and_imports(view_code_blocks: list[str], imports: str):
     origin_code = code_strip(imports)
 
     for code in view_code_blocks:
-        origin_code += f"\n{code_strip(code)}"
+        origin_code += f"\n\n{code_strip(code)}"
 
     return origin_code
 
@@ -36,7 +36,6 @@ class ViewGenerator:
         self.model_is_namespace = model_is_namespace
 
     def gen_imports(self):
-        self.imports_generator = ImportsGenerator()
         self.imports_generator.add_bulk("django.views.generic", self.generic_views)
         self.imports_generator.add(".models", self.model_name)
 
@@ -223,3 +222,8 @@ class ImportsGenerator:
             result += f"from {module} import {', '.join(obj)}\n"
 
         return result
+
+    @property
+    def imported_classes(self):
+        for _import in self.imports:
+            yield _import[1]
