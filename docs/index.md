@@ -5,6 +5,9 @@ layout: home
 hero:
   name: "Django Hogwarts"
   tagline: "Set of tools to codegen urls, views and templates!"
+  image:
+      src: /logo.png
+      alt: "logo"
   actions:
     - theme: brand
       text: docs
