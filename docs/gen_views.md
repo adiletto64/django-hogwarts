@@ -16,3 +16,5 @@ Arguments:
 `user, author, owner or creator` it sets this from request in `form_valid` function and checks user on update view
 - `--model-is-namespace, -nm` adds corresponding `reverse` function for success_url
 
+
+[checkout the example](/gen_views_example)
