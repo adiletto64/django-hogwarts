@@ -13,3 +13,5 @@ playground.ipynb
 
 .ipynb_checkpoints
 dist
+
+.ruff_cache
