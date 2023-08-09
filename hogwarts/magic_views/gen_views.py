@@ -34,19 +34,15 @@ class ViewGenerator:
 
     def create(self):
         self.generic_views.append("CreateView")
-
         builder = self.get_builder("create")
-
-        if self.smart_mode:
-            self.imports_generator.add_login_required()
-            builder = self.get_builder("create", ["LoginRequiredMixin"])
 
         builder.set_fields(self.fields)
         self.set_template(builder, "create")
-        if not self.model_is_namespace:
-            builder.set_success_url("/")
 
         if self.smart_mode:
+            self.imports_generator.add_login_required()
+            builder.set_class("create", ["LoginRequiredMixin"])
+
             for field in self.fields:
                 if field in ["user", "author", "owner", "creator"]:
                     function = f"""
@@ -64,23 +60,21 @@ class ViewGenerator:
                 return reverse("{to_plural(self.name)}:detail", args=[self.object.id])
             """
             builder.set_extra_code(code_strip(function))
+        else:
+            builder.set_success_url("/")
 
         return builder.gen()
 
     def update(self):
         self.generic_views.append("UpdateView")
         builder = self.get_builder("update")
+        builder.set_fields(self.fields)
+        self.set_template(builder, "update")
 
         if self.smart_mode:
             self.imports_generator.add_user_test()
-            builder = self.get_builder("update", ["UserPassesTestMixin"])
+            builder.set_class("update", ["UserPassesTestMixin"])
 
-        builder.set_fields(self.fields)
-        self.set_template(builder, "update")
-        if not self.model_is_namespace:
-            builder.set_success_url("/")
-
-        if self.smart_mode:
             for field in self.fields:
                 if field in ["user", "author", "owner", "creator"]:
                     function = """
@@ -97,6 +91,8 @@ class ViewGenerator:
                 return reverse("{to_plural(self.name)}:detail", args=[self.get_object().id])
             """
             builder.set_extra_code(code_strip(function))
+        else:
+            builder.set_success_url("/")
 
         return builder.gen()
 
