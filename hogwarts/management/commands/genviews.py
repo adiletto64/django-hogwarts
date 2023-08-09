@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from .base import get_app_config
-from hogwarts.magic_views import generate_views
+from hogwarts.magic_views import generate_views, ViewGenerator
 
 
 class Command(BaseCommand):
@@ -40,7 +40,7 @@ class Command(BaseCommand):
         if model_is_namespace or model_name.lower() in app_name:
             namespace_model = True
 
-        code = generate_views(model, smart_mode, namespace_model)
+        code = ViewGenerator(model, smart_mode, namespace_model).gen()
 
         path = f'{app_config.path}\\generated_views.py'
         with open(path, 'w') as file:

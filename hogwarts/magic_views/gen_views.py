@@ -1,39 +1,30 @@
-from typing import Type, Tuple
-
-from django.db import models
-
 from ..utils import to_plural, code_strip, remove_empty_lines
-
-
-def generate_views(model: Type[models.Model], smart_mode=False, model_is_namespace=False):
-    gen = ViewGenerator(model, smart_mode, model_is_namespace)
-
-    detail = gen.detail()
-    _list = gen.list()
-    create = gen.create()
-    update = gen.update()
-
-    return merge_views_and_imports([detail, _list, create, update], gen.gen_imports())
-
-
-def merge_views_and_imports(view_code_blocks: list[str], imports: str):
-    origin_code = code_strip(imports)
-
-    for code in view_code_blocks:
-        origin_code += f"\n\n{code_strip(code)}"
-
-    return origin_code
+from .gen_imports import ViewImportsGenerator
 
 
 class ViewGenerator:
     def __init__(self, model, smart_mode=False, model_is_namespace=False):
+        self.smart_mode = smart_mode
+        self.model_is_namespace = model_is_namespace
+
         self.model_name = model.__name__
         self.name = model.__name__.lower()
         self.fields = [field.name for field in model._meta.fields]
-        self.imports_generator = ImportsGenerator()
+
+        self.imports_generator = ViewImportsGenerator()
         self.generic_views = []
-        self.smart_mode = smart_mode
-        self.model_is_namespace = model_is_namespace
+
+    def gen(self):
+        detail = self.detail()
+        _list = self.list()
+        create = self.create()
+        update = self.update()
+
+        result = code_strip(self.gen_imports())
+
+        for view in [detail, _list, create, update]:
+            result += f"\n\n{code_strip(view)}"
+        return result
 
     def gen_imports(self):
         self.imports_generator.add_bulk("django.views.generic", self.generic_views)
@@ -169,61 +160,3 @@ class ClassViewBuilder:
         extra_code = remove_empty_lines(extra_code)
 
         self.result += f"\n{extra_code}\n"
-
-
-Imports = list[Tuple[str, str]]
-
-
-class ImportsGenerator:
-    def __init__(self):
-        self.imports: Imports = []
-
-    def add(self, module, obj):
-        self.imports.append((module, obj))
-
-    def add_bulk(self, module, objs: list[str]):
-        for obj in objs:
-            self.add(module, obj)
-
-    def add_login_required(self):
-        obj = "LoginRequiredMixin"
-        if not self.exists(obj):
-            self.add("django.contrib.auth.mixins", obj)
-
-    def add_user_test(self):
-        obj = "UserPassesTestMixin"
-        if not self.exists(obj):
-            self.add("django.contrib.auth.mixins", obj)
-
-    def add_reverse(self):
-        obj = "reverse"
-        if not self.exists(obj):
-            self.add("django.shortcuts", obj)
-
-    def add_reverse_lazy(self):
-        obj = "reverse_lazy"
-        if not self.exists(obj):
-            self.add("django.shortcuts", obj)
-
-    def exists(self, obj: str):
-        return any(i[1] == obj for i in self.imports)
-
-    def gen(self):
-        merged_imports = {}
-
-        for module, obj in self.imports:
-            if module not in merged_imports.keys():
-                merged_imports[module] = [obj]
-            else:
-                merged_imports[module].append(obj)
-
-        result = ""
-        for module, obj in merged_imports.items():
-            result += f"from {module} import {', '.join(obj)}\n"
-
-        return result
-
-    @property
-    def imported_classes(self):
-        for _import in self.imports:
-            yield _import[1]
