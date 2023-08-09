@@ -51,6 +51,17 @@ optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 
 [[package]]
+name = "coverage"
+version = "7.2.7"
+description = "Code coverage measurement for Python"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+toml = ["tomli"]
+
+[[package]]
 name = "decorator"
 version = "5.1.1"
 description = "Decorators for Humans"
@@ -444,7 +455,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "4f2e605add3b62fd21cdedc6b1c1faa9112c9a9249df495428dc17b9dbb1cee0"
+content-hash = "9b86bd2b6a64c405fe8b8609ee2b2d586146d91b706ec6ce6d494197094b92a6"
 
 [metadata.files]
 appnope = []
@@ -452,6 +463,7 @@ asgiref = []
 asttokens = []
 backcall = []
 colorama = []
+coverage = []
 decorator = []
 django = []
 exceptiongroup = []
