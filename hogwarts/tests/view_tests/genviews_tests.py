@@ -1,4 +1,4 @@
-from hogwarts.magic_views import ViewGenerator, merge_views_and_imports, generate_views
+from hogwarts.magic_views import ViewGenerator, generate_views
 
 from ..models import Article
 from ..utils import code_strip

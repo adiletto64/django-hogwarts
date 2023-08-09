@@ -1,4 +1,4 @@
-from typing import Type, Optional, Tuple
+from typing import Type, Tuple
 
 from django.db import models
 
@@ -92,7 +92,7 @@ class ViewGenerator:
         if self.smart_mode:
             for field in self.fields:
                 if field in ["user", "author", "owner", "creator"]:
-                    function = f"""
+                    function = """
                     def test_func(self):
                         return self.get_object() == self.request.user
                     """

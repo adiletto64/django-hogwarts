@@ -1,5 +1,4 @@
 import ast
-from textwrap import dedent
 
 
 def to_plural(string: str):
