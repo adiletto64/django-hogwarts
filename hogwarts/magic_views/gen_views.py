@@ -41,10 +41,10 @@ class ViewGenerator:
             self.imports_generator.add_login_required()
             builder = self.get_builder("create", ["LoginRequiredMixin"])
 
-        builder.add_fields(self.fields)
-        self.add_template(builder, "create")
+        builder.set_fields(self.fields)
+        self.set_template(builder, "create")
         if not self.model_is_namespace:
-            builder.add_success_url("/")
+            builder.set_success_url("/")
 
         if self.smart_mode:
             for field in self.fields:
@@ -54,7 +54,7 @@ class ViewGenerator:
                         form.instance.{field} = self.request.user
                         return super().form_valid(form)
                     """
-                    builder.add_extra_code(code_strip(function))
+                    builder.set_extra_code(code_strip(function))
                     break
 
         if self.model_is_namespace:
@@ -63,9 +63,9 @@ class ViewGenerator:
             def get_success_url(self):
                 return reverse("{to_plural(self.name)}:detail", args=[self.object.id])
             """
-            builder.add_extra_code(code_strip(function))
+            builder.set_extra_code(code_strip(function))
 
-        return builder.result
+        return builder.gen()
 
     def update(self):
         self.generic_views.append("UpdateView")
@@ -75,10 +75,10 @@ class ViewGenerator:
             self.imports_generator.add_user_test()
             builder = self.get_builder("update", ["UserPassesTestMixin"])
 
-        builder.add_fields(self.fields)
-        self.add_template(builder, "update")
+        builder.set_fields(self.fields)
+        self.set_template(builder, "update")
         if not self.model_is_namespace:
-            builder.add_success_url("/")
+            builder.set_success_url("/")
 
         if self.smart_mode:
             for field in self.fields:
@@ -87,7 +87,7 @@ class ViewGenerator:
                     def test_func(self):
                         return self.get_object() == self.request.user
                     """
-                    builder.add_extra_code(code_strip(function))
+                    builder.set_extra_code(code_strip(function))
                     break
 
         if self.model_is_namespace:
@@ -96,67 +96,87 @@ class ViewGenerator:
             def get_success_url(self):
                 return reverse("{to_plural(self.name)}:detail", args=[self.get_object().id])
             """
-            builder.add_extra_code(code_strip(function))
+            builder.set_extra_code(code_strip(function))
 
-        return builder.result
+        return builder.gen()
 
     def detail(self):
         self.generic_views.append("DetailView")
         builder = self.get_builder("detail")
-        builder.add_context_object_name(self.name)
-        self.add_template(builder, "detail")
+        builder.set_context_object_name(self.name)
+        self.set_template(builder, "detail")
 
-        return builder.result
+        return builder.gen()
 
     def list(self):
         self.generic_views.append("ListView")
         builder = self.get_builder("list")
-        builder.add_context_object_name(to_plural(self.name))
-        self.add_template(builder, "list")
+        builder.set_context_object_name(to_plural(self.name))
+        self.set_template(builder, "list")
 
-        return builder.result
+        return builder.gen()
 
     def get_builder(self, action, mixins=[]):
         builder = ClassViewBuilder(self.model_name)
-        builder.add_class(action, mixins)
-        builder.add_model()
+        builder.set_class(action, mixins)
+        builder.set_model()
 
         return builder
 
-    def add_template(self, builder, action):
-        builder.add_template_name(f"{to_plural(self.name)}/{self.name}_{action}.html")
+    def set_template(self, builder, action):
+        builder.set_template_name(f"{to_plural(self.name)}/{self.name}_{action}.html")
 
 
 class ClassViewBuilder:
     def __init__(self, model_name):
         self.model_name = model_name
-        self.result = ""
+        self.result = {
+            "class": "",
+            "model": "",
+            "fields": "",
+            "context_object_name": "",
+            "template_name": "",
+            "success_url": "",
+        }
 
-    def add_class(self, action, mixins=[]):
+        self.extra_codes = []
+
+    def set_class(self, action, mixins=[]):
         action = action.capitalize()
         class_name = f"{self.model_name}{action}View"
         inherits = [*mixins, f"{action}View"]
 
-        self.result += f"class {class_name}({', '.join(inherits)}):\n"
+        self.result["class"] = f"class {class_name}({', '.join(inherits)}):\n"
 
-    def add_model(self):
-        self.result += f'    model = {self.model_name}\n'
+    def set_model(self):
+        self.result["model"] = f'    model = {self.model_name}\n'
 
-    def add_fields(self, fields: list[str]):
+    def set_fields(self, fields: list[str]):
         fields = [f'"{field}"' for field in fields]
-        self.result += f"    fields = [{', '.join(fields)}]\n"
+        self.result["fields"] = f"    fields = [{', '.join(fields)}]\n"
 
-    def add_context_object_name(self, name):
-        self.result += f'    context_object_name = "{name}"\n'
+    def set_context_object_name(self, name):
+        self.result["context_object_name"] = f'    context_object_name = "{name}"\n'
 
-    def add_template_name(self, name):
-        self.result += f'    template_name = "{name}"\n'
+    def set_template_name(self, name):
+        self.result["template_name"] = f'    template_name = "{name}"\n'
 
-    def add_success_url(self, url):
-        self.result += f'    success_url = "{url}"\n'
+    def set_success_url(self, url):
+        self.result["success_url"] = f'    success_url = "{url}"\n'
 
-    def add_extra_code(self, extra_code):
+    def set_extra_code(self, extra_code):
         extra_code = "\n".join(map(lambda line: " " * 4 + line, extra_code.splitlines()))
         extra_code = remove_empty_lines(extra_code)
 
-        self.result += f"\n{extra_code}\n"
+        self.extra_codes.append(f"\n{extra_code}\n")
+
+    def gen(self):
+        code = ""
+
+        for key in self.result.keys():
+            code += self.result[key]
+
+        for extra in self.extra_codes:
+            code += extra
+
+        return code
