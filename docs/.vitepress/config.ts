@@ -24,6 +24,12 @@ export default defineConfig({
           { text: 'Auto urls generation', link: '/gen_urls' },
           { text: 'Conventions', link: '/conventions' }
         ]
+      },
+      {
+        text: 'views',
+        items: [
+          { text: 'Views generator', link: '/gen_views' }
+        ]
       }
     ],
 
