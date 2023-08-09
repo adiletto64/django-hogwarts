@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from .base import get_app_config
-from hogwarts.magic_views import generate_views, ViewGenerator
+from hogwarts.magic_views import ViewGenerator
 
 
 class Command(BaseCommand):
