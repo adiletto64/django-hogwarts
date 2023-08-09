@@ -18,7 +18,7 @@ class PostListView(ListView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ["id", "author", "title", "content", "created_at"]
+    fields = ["id", "title", "content", "created_at"]
     template_name = "posts/post_create.html"
 
     def form_valid(self, form):
@@ -31,7 +31,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 class PostUpdateView(UserPassesTestMixin, UpdateView):
     model = Post
-    fields = ["id", "author", "title", "content", "created_at"]
+    fields = ["id", "title", "content", "created_at"]
     template_name = "posts/post_update.html"
 
     def test_func(self):

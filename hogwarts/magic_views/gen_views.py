@@ -10,6 +10,13 @@ class ViewGenerator:
         self.model_name = model.__name__
         self.name = model.__name__.lower()
         self.fields = [field.name for field in model._meta.fields]
+        self.creator_field = None
+
+        for field in self.fields:
+            if field in ["user", "author", "owner", "creator"]:
+                self.fields.remove(field)
+                self.creator_field = field
+                break
 
         self.imports_generator = ViewImportsGenerator()
         self.generic_views = []
@@ -43,15 +50,13 @@ class ViewGenerator:
             self.imports_generator.add_login_required()
             builder.set_class("create", ["LoginRequiredMixin"])
 
-            for field in self.fields:
-                if field in ["user", "author", "owner", "creator"]:
-                    function = f"""
-                    def form_valid(self, form):
-                        form.instance.{field} = self.request.user
-                        return super().form_valid(form)
-                    """
-                    builder.set_extra_code(code_strip(function))
-                    break
+            if self.creator_field:
+                function = f"""
+                def form_valid(self, form):
+                    form.instance.{self.creator_field} = self.request.user
+                    return super().form_valid(form)
+                """
+                builder.set_extra_code(code_strip(function))
 
         if self.model_is_namespace:
             self.imports_generator.add_reverse()
@@ -75,14 +80,12 @@ class ViewGenerator:
             self.imports_generator.add_user_test()
             builder.set_class("update", ["UserPassesTestMixin"])
 
-            for field in self.fields:
-                if field in ["user", "author", "owner", "creator"]:
-                    function = """
-                    def test_func(self):
-                        return self.get_object() == self.request.user
-                    """
-                    builder.set_extra_code(code_strip(function))
-                    break
+            if self.creator_field:
+                function = """
+                def test_func(self):
+                    return self.get_object() == self.request.user
+                """
+                builder.set_extra_code(code_strip(function))
 
         if self.model_is_namespace:
             self.imports_generator.add_reverse()
