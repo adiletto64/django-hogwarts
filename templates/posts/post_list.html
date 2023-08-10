@@ -1,10 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+
+{% block content %}
+    <div class="px-5 py-4">
+        <h3>Posts list</h3>
+
+        {% for post in posts %}
+            <div class="card py-3 w-50">
+                <div class="card-header">
+                    <h4>{{ post.title }}</h4>
+                </div>
+
+                <div class="card-body">
+
+
+
+                    <div>
+                        <button class="btn btn-dark">open</button>
+                    </div>
+                </div>
+
+            </div>
+        {% endfor %}
+
+    </div>
+{% endblock %}
