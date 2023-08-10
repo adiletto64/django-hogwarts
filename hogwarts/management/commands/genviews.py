@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
         code = ViewGenerator(model, smart_mode, namespace_model).gen()
 
-        path = f'{app_config.path}\\generated_views.py'
+        path = f'{app_config.path}\\views.py'
         with open(path, 'w') as file:
             file.write(code)
 
