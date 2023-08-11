@@ -8,7 +8,7 @@ class Path:
     path_name: str
 
 
-def extract_paths_from_urls_code(code: str):
+def extract_paths(code: str):
     lines = code.strip().split("\n")
     extracted_list: list[Path] = []
 

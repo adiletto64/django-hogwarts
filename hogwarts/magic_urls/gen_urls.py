@@ -218,5 +218,4 @@ def read_app_name_from_urls_py(urls_path: str):
     file = open(urls_path, "r")
     code = file.read()
 
-    imports, urlpatterns = separate_imports_and_urlpatterns(code)
     return get_app_name(code)

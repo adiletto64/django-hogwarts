@@ -1,5 +1,5 @@
 from hogwarts.magic_urls.gen_urls import gen_path
-from hogwarts.magic_urls.utils import extract_paths_from_urls_code, append_path_to_urls_code
+from hogwarts.magic_urls.utils import extract_paths, append_path_to_urls_code
 
 
 def test_it_extracts_paths():
@@ -11,7 +11,7 @@ urlpatterns = [
 ]       
     """
 
-    result = extract_paths_from_urls_code(payload)
+    result = extract_paths(payload)
 
     assert result[0].path_name == "list"
     assert result[0].view == "PostListView"
