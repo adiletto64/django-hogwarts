@@ -24,60 +24,69 @@ class UrlGenerator:
     def __init__(self, views_module, urls_path: str, app_name, force_app_name: bool):
         self.views_module = views_module
         self.urls_path = urls_path
-        self.app_name = app_name
-        self.force_app_name = force_app_name
+        self.app_name = None
+
+        if force_app_name:
+            self.app_name = app_name
+        else:
+            self.app_name = read_app_name(self.urls_path) or app_name
 
     def gen_urls_py(self):
         """
         generates code for urls.py
         fully overrides any existing code
         """
-        imports = gen_url_imports(import_views(self.views_module), "views")
+        views = import_views(self.views_module)
 
-        app_name = self.app_name
-        # if app name not forced try to get app_name variable from urls.py
-        if not self.force_app_name:
-            app_name = read_app_name_from_urls_py(self.urls_path) or self.app_name
+        imports = gen_url_imports(views)
+        urlpatterns = gen_urlpatterns(self.views_module, self.app_name)
 
-        urlpatterns = gen_urlpatterns(self.views_module, app_name)
-
-        with open(f"{self.urls_path}", 'w') as file:
-            file.write(imports + f'\n\n\napp_name = "{app_name}"' + urlpatterns)
+        self.write(imports, urlpatterns)
 
     def merge_urls_py(self):
         """
-        adds views to existing imports and urlpatterns
+        adds new paths without touching existing paths
         """
         file = open(self.urls_path, "r")
         code = file.read()
 
         imports, urlpatterns = separate_imports_and_urlpatterns(code)
-
-        app_name = self.app_name
-        # if app name not forced try to get app_name variable from urls.py
-        if not self.force_app_name:
-            app_name = get_app_name(code) or self.app_name
-
         views = import_views(self.views_module)
-        paths: list[UtilityPath] = []
 
-        for view in views:
-            path = gen_path(view, app_name)
-            paths.append(UtilityPath(path, view.__name__))
+        imports = self.merge_imports(imports, views)
+        urlpatterns = self.merge_urlpatterns(urlpatterns, views)
 
+        self.write(imports, urlpatterns)
+
+    @staticmethod
+    def merge_imports(imports, views):
         for view in views:
             if view.__name__ not in imports:
                 imports = append_view_into_imports(imports, view)
+
+        return imports
+
+    def merge_urlpatterns(self, urlpatterns, views):
+        paths: list[UtilityPath] = []
+
+        for view in views:
+            path = gen_path(view, self.app_name)
+            paths.append(UtilityPath(path, view.__name__))
 
         for path in paths:
             if path.view_name not in urlpatterns:
                 urlpatterns = append_path_into_urlpatterns(urlpatterns, path.path)
 
-        with open(self.urls_path, 'w') as file:
-            file.write(imports + f'\n\napp_name = "{app_name}"\n' + urlpatterns)
+        return urlpatterns
+
+    def write(self, imports, urlpatterns):
+        code = f'{imports}\n\napp_name = "{self.app_name}"\n{urlpatterns}'
+
+        with open(f"{self.urls_path}", 'w') as file:
+            file.write(code)
 
 
-def gen_url_imports(views: list[object], views_file_name: str):
+def gen_url_imports(views: list[object], views_file_name: str = "views"):
     view_names = ", ".join((view.__name__ for view in views))
 
     return f"from django.urls import path\n\nfrom .{views_file_name} import {view_names}"
@@ -214,7 +223,7 @@ def urlpatterns_is_empty(code):
     return bool(re.search(r'urlpatterns\s*=\s*\[\s*\]', code))
 
 
-def read_app_name_from_urls_py(urls_path: str):
+def read_app_name(urls_path: str):
     file = open(urls_path, "r")
     code = file.read()
 
