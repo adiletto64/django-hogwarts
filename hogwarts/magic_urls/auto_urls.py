@@ -7,11 +7,9 @@ from ._base import (
     import_views,
     get_path_name,
     get_path_url,
-    view_is_detail,
-    has_path_decorator,
-    get_decorator_path_name,
-    get_decorator_path_url
+    view_is_detail
 )
+from .decorators import PathDecorator
 
 
 def auto_urls(views_module, app_name: str):
@@ -25,9 +23,10 @@ def auto_urls(views_module, app_name: str):
 
 
 def get_path(view, app_name: Optional[str] = None):
-    if has_path_decorator(view):
-        path_name = get_decorator_path_name(view)
-        path_url = get_decorator_path_url(view)
+    decorator = PathDecorator(view)
+    if decorator.exists():
+        path_name = decorator.get_path_name()
+        path_url = decorator.get_path_url()
 
     else:
         path_name = get_path_name(view, app_name)

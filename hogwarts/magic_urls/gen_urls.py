@@ -1,27 +1,13 @@
 import re
 from inspect import isclass
 from typing import Tuple, Optional
-from dataclasses import dataclass
 
-from hogwarts.magic_urls._base import (
-    import_views,
-    get_path_name,
-    get_path_url,
-    view_is_detail,
-    has_path_decorator,
-    get_decorator_path_name,
-    get_decorator_path_url
-)
+from hogwarts.magic_urls._base import import_views, get_path_name, get_path_url, view_is_detail
+from .decorators import PathDecorator
 
 
-@dataclass
-class UtilityPath:
-    path: str
-    view_name: str
-
-
-class UrlGenerator:
-    def __init__(self, views_module, urls_path: str, app_name, force_app_name: bool):
+class BaseUrl:
+    def __init__(self, views_module, urls_path: str, app_name, force_app_name=False):
         self.views_module = views_module
         self.urls_path = urls_path
         self.app_name = None
@@ -31,6 +17,14 @@ class UrlGenerator:
         else:
             self.app_name = read_app_name(self.urls_path) or app_name
 
+    def write(self, imports, urlpatterns):
+        code = f'{imports}\n\napp_name = "{self.app_name}"\n{urlpatterns}'
+
+        with open(f"{self.urls_path}", 'w') as file:
+            file.write(code)
+
+
+class UrlGenerator(BaseUrl):
     def gen_urls_py(self):
         """
         generates code for urls.py
@@ -38,11 +32,29 @@ class UrlGenerator:
         """
         views = import_views(self.views_module)
 
-        imports = gen_url_imports(views)
-        urlpatterns = gen_urlpatterns(self.views_module, self.app_name)
+        imports = self.gen_url_imports(views)
+        urlpatterns = self.gen_urlpatterns(views)
 
         self.write(imports, urlpatterns)
 
+    @staticmethod
+    def gen_url_imports(views: list[object]):
+        view_names = ", ".join(view.__name__ for view in views)
+        return f"from django.urls import path\n\nfrom .views import {view_names}"
+
+    def gen_urlpatterns(self, views):
+        paths = []
+
+        for view in views:
+            paths.append(gen_path(view, self.app_name))
+
+        paths_string = ",\n    ".join(paths)
+        result = f'urlpatterns = [\n    {paths_string.strip()}\n]'
+
+        return result
+
+
+class UrlMerger(BaseUrl):
     def merge_urls_py(self):
         """
         adds new paths without touching existing paths
@@ -53,13 +65,13 @@ class UrlGenerator:
         imports, urlpatterns = separate_imports_and_urlpatterns(code)
         views = import_views(self.views_module)
 
-        imports = self.merge_imports(imports, views)
+        imports = self.merge_url_imports(imports, views)
         urlpatterns = self.merge_urlpatterns(urlpatterns, views)
 
         self.write(imports, urlpatterns)
 
     @staticmethod
-    def merge_imports(imports, views):
+    def merge_url_imports(imports, views):
         for view in views:
             if view.__name__ not in imports:
                 imports = append_view_into_imports(imports, view)
@@ -67,59 +79,29 @@ class UrlGenerator:
         return imports
 
     def merge_urlpatterns(self, urlpatterns, views):
-        paths: list[UtilityPath] = []
+        paths: list[Tuple[str, str]] = []
 
         for view in views:
             path = gen_path(view, self.app_name)
-            paths.append(UtilityPath(path, view.__name__))
+            paths.append((path, view.__name__))
 
         for path in paths:
-            if path.view_name not in urlpatterns:
-                urlpatterns = append_path_into_urlpatterns(urlpatterns, path.path)
+            if path[1] not in urlpatterns:
+                urlpatterns = append_path_into_urlpatterns(urlpatterns, path[0])
 
         return urlpatterns
 
-    def write(self, imports, urlpatterns):
-        code = f'{imports}\n\napp_name = "{self.app_name}"\n{urlpatterns}'
-
-        with open(f"{self.urls_path}", 'w') as file:
-            file.write(code)
-
-
-def gen_url_imports(views: list[object], views_file_name: str = "views"):
-    view_names = ", ".join((view.__name__ for view in views))
-
-    return f"from django.urls import path\n\nfrom .{views_file_name} import {view_names}"
-
-
-def gen_urlpatterns(views_module, app_name: str):
-    views = import_views(views_module)
-    urlpatterns = []
-
-    for view in views:
-        urlpatterns.append(gen_path(view, app_name))
-
-    paths_string = ",\n    ".join(urlpatterns)
-
-    result = f"""
-urlpatterns = [
-    {paths_string.strip()}
-]    
-    """
-
-    return result
-
 
 def gen_path(view, app_name) -> str:
-    if has_path_decorator(view):
-        path_name = get_decorator_path_name(view)
-        path_url = get_decorator_path_url(view)
+    decorator = PathDecorator(view)
+    if decorator.exists():
+        path_name = decorator.get_path_name()
+        path_url = decorator.get_path_url()
 
         print(
             f"info: You have provided @custom_path decorator in {view.__name__}"
             f"don't forget to remove because it is not in use anymore"
         )
-
     else:
         path_name = get_path_name(view, app_name)
         path_url = get_path_url(
@@ -127,12 +109,13 @@ def gen_path(view, app_name) -> str:
             detail=view_is_detail(view) if isclass(view) else False
         )
 
-    if isclass(view):
-        view_function = f"{view.__name__}.as_view()"
-    else:
-        view_function = f"{view.__name__}"
+    view_name = view.__name__
+    view_function = f"{view_name}.as_view()" if isclass(view) else view_name
 
     return f'path("{path_url}", {view_function}, name="{path_name}")'
+
+
+# Warning. below are purely algorithmic functions, no need to read
 
 
 def separate_imports_and_urlpatterns(code: str) -> Tuple[str, str]:

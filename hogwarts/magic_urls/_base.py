@@ -9,22 +9,8 @@ from django.views import View
 from django.views.generic import DeleteView, DetailView, UpdateView
 
 
-detail_names = [
-    "Detail",
-    "Update",
-    "Delete"
-]
-
-
-BASE_CLASS_NAMES = [
-    'View',
-    'ListView',
-    'CreateView',
-    'FormView',
-    'DetailView',
-    'DeleteView',
-    'UpdateView',
-]
+detail_names = ["Detail", "Update", "Delete"]
+BASE_CLASS_NAMES = ['View', 'ListView', 'CreateView', 'FormView', 'DetailView', 'DeleteView', 'UpdateView']
 
 
 class ViewType(Enum):
@@ -102,30 +88,3 @@ def is_view(obj):
     not_base_class = name not in BASE_CLASS_NAMES
 
     return ends_with_view and not_base_class
-
-
-def custom_path(
-        path_name: str,
-        path_url: Optional[str] = None,
-        detail: bool = False
-):
-    def wrapper(obj):
-        obj.auto_url_path = Path(path_name, detail, path_url)
-        return obj
-
-    return wrapper
-
-
-def has_path_decorator(view):
-    return hasattr(view, "auto_url_path")
-
-
-def get_decorator_path_name(view):
-    path: Path = getattr(view, "auto_url_path")
-    return path.path_name
-
-
-def get_decorator_path_url(view):
-    path: Path = getattr(view, "auto_url_path")
-    path_name = get_decorator_path_name(view)
-    return path.path_urls or get_path_url(path_name, detail=path.detail)

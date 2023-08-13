@@ -1,4 +1,8 @@
-from hogwarts.magic_urls.gen_urls import gen_urlpatterns, gen_path, gen_url_imports
+from pytest import fixture
+from django.apps import apps
+
+from hogwarts.magic_urls._base import import_views
+from hogwarts.magic_urls.gen_urls import gen_path, UrlGenerator
 from hogwarts.magic_urls import custom_path
 
 from hogwarts import _test_views
@@ -30,32 +34,40 @@ def test_it_extracts_metadata():
     assert result == expected
 
 
-def test_it_generates_urls():
-    result = gen_urlpatterns(_test_views, "my")
+views = import_views(_test_views)
+
+
+@fixture
+def generator():
+    base_url = apps.get_app_config("hogwarts").path
+    return UrlGenerator(_test_views, f"{base_url}\\urls.py", "my", True)
+
+
+def test_it_generates_urls(generator):
+    result = generator.gen_urlpatterns(views)
 
     expected = """
-urlpatterns = [
-    path("form/", MyFormView.as_view(), name="form"),
-    path("", MyListView.as_view(), name="list"),
-    path("confirm-post/", confirm_post_view, name="confirm_post"),
-    path("get/", get_view, name="get"),
-    path("post/", post_view, name="post")
-]    
-    """
+    urlpatterns = [
+        path("form/", MyFormView.as_view(), name="form"),
+        path("", MyListView.as_view(), name="list"),
+        path("confirm-post/", confirm_post_view, name="confirm_post"),
+        path("get/", get_view, name="get"),
+        path("post/", post_view, name="post")
+    ]"""
 
-    assert result == expected
+    assert result == code_strip(expected)
 
 
-def test_it_generates_imports():
-    result = gen_url_imports([
+def test_it_generates_imports(generator):
+    result = generator.gen_url_imports([
         _test_views.MyListView,
         _test_views.MyFormView,
         _test_views.get_view
-    ], "_test_views")
+    ])
 
     expected = """
         from django.urls import path
     
-        from ._test_views import MyListView, MyFormView, get_view"""
+        from .views import MyListView, MyFormView, get_view"""
 
     assert code_strip(result) == code_strip(expected)

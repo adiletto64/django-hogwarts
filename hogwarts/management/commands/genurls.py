@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from rich.console import Console
 from rich.syntax import Syntax
 
-from hogwarts.magic_urls.gen_urls import UrlGenerator, urlpatterns_is_empty
+from hogwarts.magic_urls.gen_urls import UrlGenerator, urlpatterns_is_empty, UrlMerger
 from .base import get_app_config, get_views_module
 
 
@@ -36,9 +36,10 @@ class Command(BaseCommand):
         urls_path = f'{app_config.path}\\urls.py'
 
         url_generator = UrlGenerator(views_module, urls_path, app_name, force_new_app_name)
+        url_merger = UrlMerger(views_module, urls_path, app_name, force_new_app_name)
 
         if merge:
-            url_generator.merge_urls_py()
+            url_merger.merge_urls_py()
             console.print("new paths merged to urlpatterns ✅", style="green")
         else:
             code = open(urls_path, "r").read()
@@ -62,7 +63,7 @@ class Command(BaseCommand):
                         continue
 
                     if response == "m":
-                        url_generator.merge_urls_py()
+                        url_merger.merge_urls_py()
                         console.print("new paths merged to urlpatterns ✅", style="green")
 
                     elif response == "o":
