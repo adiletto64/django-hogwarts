@@ -3,25 +3,31 @@
 
 {% block content %}
     <div class="px-5 py-4">
-        <h3>Posts list</h3>
+        <h3>posts list</h3>
+        <a href="{% url 'posts:create' %}">create</a>
 
-        {% for post in posts %}
-            <div class="card py-3 w-50">
-                <div class="card-header">
-                    <h4>{{ post.title }}</h4>
-                </div>
-
-                <div class="card-body">
-
-
-
-                    <div>
-                        <button class="btn btn-dark">open</button>
-                    </div>
-                </div>
-
-            </div>
-        {% endfor %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>id</td>
+                    <td>title</td>
+                    <td>tags</td>
+                    <td>content</td>
+                    <td>created_at</td>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                
+                {% for post in posts %}
+                    <tr>
+                        <td>{{ post.id }}</td>
+                        <td>{{ post.title }}</td>
+                        <td>{{ post.tags }}</td>
+                        <td>{{ post.content }}</td>
+                        <td>{{ post.created_at }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
     </div>
 {% endblock %}

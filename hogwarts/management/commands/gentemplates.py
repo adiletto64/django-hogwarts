@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from .base import get_app_config
+from ...magic_templates.gen_templates import gen_templates
 
 
 class Command(BaseCommand):
@@ -11,6 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         app_name: str = options["app"]
-        app_config = get_app_config(app_name)
 
+        gen_templates(app_name)
 
+        print("Successfully created")

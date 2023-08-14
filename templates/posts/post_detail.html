@@ -3,20 +3,25 @@
 
 {% block content %}
 <div class="py-4 px-5">
-    <h3>Post detail</h3>
-    <div class="card card-body w-50 mt-3">
+    <h3>post detail</h3>
+    <div class="card card-body w-50">
         <dl class="row">
-            <dt class="col-sm-2">title</dt>
-            <dd class="col-sm-10">{{ post.title }}</dd>
-
-            <dt class="col-sm-2">tags</dt>
-            <dd class="col-sm-10">{{ post.tags }}</dd>
-
-            <dt class="col-sm-2">content</dt>
-            <dd class="col-sm-10">{{ post.content }}</dd>
-
-            <dt class="col-sm-2 text-truncate">created at</dt>
-            <dd class="col-sm-10">{{ post.created_at }}</dd>
+            
+                <dt class="col-sm-2">id</dt>
+                <dd class="col-sm-10">{{ post.id }}</dd>
+            
+                <dt class="col-sm-2">title</dt>
+                <dd class="col-sm-10">{{ post.title }}</dd>
+            
+                <dt class="col-sm-2">tags</dt>
+                <dd class="col-sm-10">{{ post.tags }}</dd>
+            
+                <dt class="col-sm-2">content</dt>
+                <dd class="col-sm-10">{{ post.content }}</dd>
+            
+                <dt class="col-sm-2">created_at</dt>
+                <dd class="col-sm-10">{{ post.created_at }}</dd>
+            
         </dl>
     </div>
 </div>

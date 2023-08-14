@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="py-4 px-5">
+    <h3>[[ item ]] detail</h3>
+    <div class="card card-body w-50">
+        <dl class="row">
+            [# for field in fields #]
+                <dt class="col-sm-2">[[ field ]]</dt>
+                <dd class="col-sm-10">{{ [[ item ]].[[ field ]] }}</dd>
+            [# endfor #]
+        </dl>
+    </div>
+</div>
+{% endblock %}
