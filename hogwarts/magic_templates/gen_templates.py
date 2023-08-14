@@ -1,9 +1,11 @@
+import os
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Type
 
+import jinja2
 from django.views import View
-from django.apps import apps
+from django.conf import settings
 
 from hogwarts.magic_urls._base import import_views
 from hogwarts.magic_urls.utils import Path, extract_paths
@@ -27,17 +29,26 @@ class Endpoint:
     view_type: Optional[ViewType]
 
 
-def get_views(app_name: str):
-    views_module = get_views_module(app_name)
-    return import_views(views_module)
-
-
-def get_paths(app_name: str):
-    urls_py = open(f"{app_name}\\urls.py", "r").read()
-    return extract_paths(urls_py)
-
-
 def gen_templates(app_name: str):
+    endpoints = get_endpoints(app_name)
+    templates_dir = settings.TEMPLATES["DIRS"][0]
+
+    for endpoint in endpoints:
+        if endpoint.view_type == ViewType.CREATE:
+            pass
+
+
+def create_nested_file(templates_dir, new_template, content):
+    full_path = os.path.join(templates_dir, new_template)
+
+    dir_path, file_name = os.path.split(full_path)
+    os.makedirs(dir_path, exist_ok=True)
+
+    with open(full_path, 'w') as file:
+        file.write(content)
+
+
+def get_endpoints(app_name: str):
     views = get_views(app_name)
     paths = get_paths(app_name)
 
@@ -47,6 +58,17 @@ def gen_templates(app_name: str):
         endpoint = get_endpoint(view, paths, app_name)
         if endpoint.view_type:
             endpoints.append(endpoint)
+
+    return endpoints
+
+def get_views(app_name: str):
+    views_module = get_views_module(app_name)
+    return import_views(views_module)
+
+
+def get_paths(app_name: str):
+    urls_py = open(f"{app_name}\\urls.py", "r").read()
+    return extract_paths(urls_py)
 
 
 def get_endpoint(view, paths: list[Path], app_name: Optional[str]):
