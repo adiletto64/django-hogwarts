@@ -1,3 +1,5 @@
+import os
+
 from pytest import fixture
 from django.apps import apps
 
@@ -40,7 +42,7 @@ views = import_views(_test_views)
 @fixture
 def generator():
     base_url = apps.get_app_config("hogwarts").path
-    return UrlGenerator(_test_views, f"{base_url}\\urls.py", "my", True)
+    return UrlGenerator(_test_views, os.path.join(base_url, "urls.py"), "my", True)
 
 
 def test_it_generates_urls(generator):

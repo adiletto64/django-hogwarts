@@ -1,3 +1,5 @@
+import os
+
 from django.core.management.base import BaseCommand, CommandError
 
 from .base import get_app_config
@@ -42,7 +44,7 @@ class Command(BaseCommand):
 
         code = ViewGenerator(model, smart_mode, namespace_model).gen()
 
-        path = f'{app_config.path}\\views.py'
+        path = os.path.join(app_config.path, "views.py")
         with open(path, 'w') as file:
             file.write(code)
 

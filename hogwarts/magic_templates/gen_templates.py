@@ -1,10 +1,10 @@
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 from jinja2 import Environment
-from django.views.generic import TemplateView
+from django.views.generic import DetailView, CreateView
 from django.conf import settings
 from django.db.models import Model
 from django.apps import apps
@@ -29,7 +29,7 @@ class ViewType(Enum):
 
 @dataclass
 class Endpoint:
-    view: Type[TemplateView]
+    view: Union[DetailView, CreateView]
     template_name: str
     path_name: str
     model: Type[Model]
@@ -39,10 +39,13 @@ class Endpoint:
 def gen_templates(app_name: str):
     endpoints = get_endpoints(app_name)
 
-
     for endpoint in endpoints:
         if endpoint.view_type == ViewType.CREATE:
             result = get_template({"model": endpoint.model.__name__}, "create")
+            create_nested_file(endpoint.template_name, result)
+
+        elif endpoint.view_type == ViewType.UPDATE:
+            result = get_template({"model": endpoint.model.__name__}, "update")
             create_nested_file(endpoint.template_name, result)
 
         elif endpoint.view_type == ViewType.LIST:
@@ -66,13 +69,9 @@ def gen_templates(app_name: str):
             result = get_template(context_data, "detail")
             create_nested_file(endpoint.template_name, result)
 
-        elif endpoint.view_type == ViewType.UPDATE:
-            result = get_template({"model": endpoint.model.__name__}, "update")
-            create_nested_file(endpoint.template_name, result)
-
 
 def get_template(context_data: dict, action):
-    create = open(f"{SCAFFOLD_FOLDER}\\{action}.html", "r").read()
+    create = open(os.path.join(SCAFFOLD_FOLDER, f"{action}.html"), "r").read()
     template = env.from_string(create)
     return template.render(context_data)
 
@@ -107,7 +106,7 @@ def get_views(app_name: str):
 
 
 def get_paths(app_name: str):
-    urls_py = open(f"{app_name}\\urls.py", "r").read()
+    urls_py = open(os.path.join(app_name, "urls.py"), "r").read()
     return extract_paths(urls_py)
 
 

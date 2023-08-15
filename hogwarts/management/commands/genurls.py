@@ -1,3 +1,5 @@
+import os
+
 from django.core.management.base import BaseCommand
 from rich.console import Console
 from rich.syntax import Syntax
@@ -33,7 +35,7 @@ class Command(BaseCommand):
 
         views_module = get_views_module(app_name)
         app_config = get_app_config(app_name)
-        urls_path = f'{app_config.path}\\urls.py'
+        urls_path = os.path.join(app_config.path, "urls.py")
 
         url_generator = UrlGenerator(views_module, urls_path, app_name, force_new_app_name)
         url_merger = UrlMerger(views_module, urls_path, app_name, force_new_app_name)
