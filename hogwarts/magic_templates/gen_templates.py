@@ -129,7 +129,7 @@ def get_endpoint(view, paths: list[Path], app_name: Optional[str]):
     path_name = None
 
     for path in paths:
-        if path.view == view:
+        if path.view == view.__name__:
             path_name = path.path_name
 
     path_name = f"{app_name}:{path_name}" if app_name else path_name
