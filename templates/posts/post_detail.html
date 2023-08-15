@@ -4,7 +4,7 @@
 {% block content %}
 <div class="py-4 px-5">
     
-    <a href="{% url "posts:list" %}"><- list</a>
+    <a href="{% url "posts:None" %}"><- list</a>
     
     <h3>post detail</h3>
     <div class="card card-body w-50">
@@ -27,7 +27,7 @@
             
         </dl>
         
-            <a href="{% url "posts:update" post.pk %}">edit</a>
+            <a href="{% url "posts:None" post.pk %}">edit</a>
         
     </div>
 </div>

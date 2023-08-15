@@ -5,7 +5,7 @@
     <div class="px-5 py-4">
         <h3>posts list</h3>
         
-        <a href="{% url "posts:create" %}">create</a>
+        <a href="{% url "posts:None" %}">create</a>
         
         <table class="table">
             <thead>
@@ -24,7 +24,7 @@
                     <tr>
                         <td>{{ post.id }}</td>
                         <td>
-                            <a href="{% url "posts:detail" post.pk %}">{{ post.title }}</a>
+                            <a href="{% url "posts:None" post.pk %}">{{ post.title }}</a>
                         </td>
                         <td>{{ post.tags }}</td>
                         <td>{{ post.content }}</td>

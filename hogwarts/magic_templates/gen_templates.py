@@ -44,17 +44,20 @@ def gen_templates(app_name: str):
         model_name = endpoint.model.__name__
 
         if endpoint.view_type == ViewType.CREATE:
-            result = get_template({"model": model_name}, "create")
-            create_nested_file(endpoint.template_name, result)
+            result = render_template({"model": model_name}, "create")
+            write_template(endpoint.template_name, result)
+            print("created template:", endpoint.template_name)
 
         elif endpoint.view_type == ViewType.UPDATE:
-            result = get_template({"model": model_name}, "update")
-            create_nested_file(endpoint.template_name, result)
+            result = render_template({"model": model_name}, "update")
+            write_template(endpoint.template_name, result)
+            print("created template:", endpoint.template_name)
+
 
         elif endpoint.view_type == ViewType.LIST:
             name = endpoint.view.context_object_name
-            create_path_name = find_path(endpoints, endpoint.model, ViewType.CREATE)
-            detail_path_name = find_path(endpoints, endpoint.model, ViewType.DETAIL)
+            create_path_name = find_path_name(endpoints, endpoint.model, ViewType.CREATE)
+            detail_path_name = find_path_name(endpoints, endpoint.model, ViewType.DETAIL)
 
             context_data = {
                 "fields": fields,
@@ -64,13 +67,14 @@ def gen_templates(app_name: str):
                 "detail_path_name": detail_path_name
             }
 
-            result = get_template(context_data, "list")
-            create_nested_file(endpoint.template_name, result)
+            result = render_template(context_data, "list")
+            write_template(endpoint.template_name, result)
+            print("created template:", endpoint.template_name)
 
         elif endpoint.view_type == ViewType.DETAIL:
             name = endpoint.view.context_object_name
-            update_path_name = find_path(endpoints, endpoint.model, ViewType.UPDATE)
-            list_path_name = find_path(endpoints, endpoint.model, ViewType.LIST)
+            update_path_name = find_path_name(endpoints, endpoint.model, ViewType.UPDATE)
+            list_path_name = find_path_name(endpoints, endpoint.model, ViewType.LIST)
             context_data = {
                 "fields": fields,
                 "item": name,
@@ -78,11 +82,12 @@ def gen_templates(app_name: str):
                 "update_path_name": update_path_name
             }
 
-            result = get_template(context_data, "detail")
-            create_nested_file(endpoint.template_name, result)
+            result = render_template(context_data, "detail")
+            write_template(endpoint.template_name, result)
+            print("created template:", endpoint.template_name)
 
 
-def find_path(endpoints: list[Endpoint], model, view_type: ViewType):
+def find_path_name(endpoints: list[Endpoint], model, view_type: ViewType):
     for endpoint in endpoints:
         if endpoint.model == model and endpoint.view_type == view_type:
             return endpoint.path_name
@@ -90,14 +95,14 @@ def find_path(endpoints: list[Endpoint], model, view_type: ViewType):
     return None
 
 
-def get_template(context_data: dict, action):
+def render_template(context_data: dict, action):
     create = open(os.path.join(SCAFFOLD_FOLDER, f"{action}.html"), "r").read()
     template = env.from_string(create)
     return template.render(context_data)
 
 
-def create_nested_file(new_template, content):
-    full_path = os.path.join(TEMPLATES_FOLDER, new_template)
+def write_template(template_path, content):
+    full_path = os.path.join(TEMPLATES_FOLDER, template_path)
 
     dir_path, file_name = os.path.split(full_path)
     os.makedirs(dir_path, exist_ok=True)
@@ -120,6 +125,20 @@ def get_endpoints(app_name: str):
     return endpoints
 
 
+def get_endpoint(view, paths: list[Path], app_name: Optional[str]):
+    path_name = None
+
+    for path in paths:
+        if path.view == view:
+            path_name = path.path_name
+
+    path_name = f"{app_name}:{path_name}" if app_name else path_name
+    view_type = get_view_type(view.__name__)
+    model = view.model
+
+    return Endpoint(view, view.template_name, path_name, model, view_type)
+
+
 def get_views(app_name: str):
     views_module = get_views_module(app_name)
     return import_views(views_module)
@@ -128,21 +147,6 @@ def get_views(app_name: str):
 def get_paths(app_name: str):
     urls_py = open(os.path.join(app_name, "urls.py"), "r").read()
     return extract_paths(urls_py)
-
-
-def get_endpoint(view, paths: list[Path], app_name: Optional[str]):
-    path_name = find_path_name(view.__name__, paths)
-    path_name = f"{app_name}:{path_name}" if app_name else path_name
-    view_type = get_view_type(view.__name__)
-    model = view.model
-
-    return Endpoint(view, view.template_name, path_name, model, view_type)
-
-
-def find_path_name(view: str, paths: list[Path]):
-    for path in paths:
-        if path.view == view:
-            return path.path_name
 
 
 def get_view_type(view: str):
