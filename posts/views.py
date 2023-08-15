@@ -26,7 +26,7 @@ class PostCreateView(CreateView):
 
 class PostUpdateView(UpdateView):
     model = Post
-    fields = ["id", "title", "tags", "content", "created_at"]
+    fields = ["id", "title", "tags", "content"]
     template_name = "posts/post_update.html"
 
     def get_success_url(self):

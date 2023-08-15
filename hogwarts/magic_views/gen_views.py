@@ -9,7 +9,7 @@ class ViewGenerator:
 
         self.model_name = model.__name__
         self.name = model.__name__.lower()
-        self.fields = [field.name for field in model._meta.fields]
+        self.fields = [field.name for field in model._meta.fields if field.editable]
         self.creator_field = None
 
         for field in self.fields:
