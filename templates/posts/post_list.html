@@ -4,8 +4,9 @@
 {% block content %}
     <div class="px-5 py-4">
         <h3>posts list</h3>
-        <a href="{% url 'posts:create' %}">create</a>
-
+        
+        <a href="{% url "posts:create" %}">create</a>
+        
         <table class="table">
             <thead>
                 <tr>
@@ -14,6 +15,7 @@
                     <td>tags</td>
                     <td>content</td>
                     <td>created_at</td>
+                    
                 </tr>
             </thead>
             <tbody class="table-group-divider">
@@ -21,10 +23,14 @@
                 {% for post in posts %}
                     <tr>
                         <td>{{ post.id }}</td>
-                        <td>{{ post.title }}</td>
+                        <td>
+                            <a href="{% url "posts:detail" post.pk %}">{{ post.title }}</a>
+                        </td>
                         <td>{{ post.tags }}</td>
                         <td>{{ post.content }}</td>
-                        <td>{{ post.created_at }}</td></tr>
+                        <td>{{ post.created_at }}</td>
+                        
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>

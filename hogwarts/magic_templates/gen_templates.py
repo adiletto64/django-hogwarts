@@ -40,20 +40,28 @@ def gen_templates(app_name: str):
     endpoints = get_endpoints(app_name)
 
     for endpoint in endpoints:
+        fields = [field.name for field in endpoint.model._meta.fields]
+        model_name = endpoint.model.__name__
+
         if endpoint.view_type == ViewType.CREATE:
-            result = get_template({"model": endpoint.model.__name__}, "create")
+            result = get_template({"model": model_name}, "create")
             create_nested_file(endpoint.template_name, result)
 
         elif endpoint.view_type == ViewType.UPDATE:
-            result = get_template({"model": endpoint.model.__name__}, "update")
+            result = get_template({"model": model_name}, "update")
             create_nested_file(endpoint.template_name, result)
 
         elif endpoint.view_type == ViewType.LIST:
             name = endpoint.view.context_object_name
+            create_path_name = find_path(endpoints, endpoint.model, ViewType.CREATE)
+            detail_path_name = find_path(endpoints, endpoint.model, ViewType.DETAIL)
+
             context_data = {
-                "fields": [field.name for field in endpoint.model._meta.fields],
+                "fields": fields,
                 "item": name[:-1],
-                "items": name
+                "items": name,
+                "create_path_name": create_path_name,
+                "detail_path_name": detail_path_name
             }
 
             result = get_template(context_data, "list")
@@ -61,13 +69,25 @@ def gen_templates(app_name: str):
 
         elif endpoint.view_type == ViewType.DETAIL:
             name = endpoint.view.context_object_name
+            update_path_name = find_path(endpoints, endpoint.model, ViewType.UPDATE)
+            list_path_name = find_path(endpoints, endpoint.model, ViewType.LIST)
             context_data = {
-                "fields": [field.name for field in endpoint.model._meta.fields],
+                "fields": fields,
                 "item": name,
+                "list_path_name": list_path_name,
+                "update_path_name": update_path_name
             }
 
             result = get_template(context_data, "detail")
             create_nested_file(endpoint.template_name, result)
+
+
+def find_path(endpoints: list[Endpoint], model, view_type: ViewType):
+    for endpoint in endpoints:
+        if endpoint.model == model and endpoint.view_type == view_type:
+            return endpoint.path_name
+
+    return None
 
 
 def get_template(context_data: dict, action):
