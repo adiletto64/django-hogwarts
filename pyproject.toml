@@ -12,7 +12,7 @@ keywords = ["django", "django-utils", "codegen"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-Django = "^4.2.2"
+Django = "4.2.3"
 ruff = "^0.0.280"
 rich = "^13.5.2"
 coverage = "^7.2.7"
