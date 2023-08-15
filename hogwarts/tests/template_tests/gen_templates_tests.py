@@ -21,7 +21,8 @@ def test_it_gets_endpoint():
         view=ExampleCreateView,
         template_name=ExampleCreateView.template_name,
         path_name="example:create",
-        view_type=ViewType.CREATE
+        view_type=ViewType.CREATE,
+        model=ExampleCreateView.model
     )
 
     assert endpoint == expected
