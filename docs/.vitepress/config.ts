@@ -30,6 +30,12 @@ export default defineConfig({
         items: [
           { text: 'Views generator', link: '/gen_views' }
         ]
+      },
+      {
+        text: 'templates',
+        items: [
+          { text: 'Templates generator', link: '/gen_templates' }
+        ]
       }
     ],
 

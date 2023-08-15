@@ -28,5 +28,6 @@ features:
   - icon: 📜
     title: Generate templates from templates! 
     details: Specify basic html markup and generated forms, lists, tables from them
+    link: "/gen_templates"
 ---
 
