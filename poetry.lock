@@ -63,14 +63,14 @@ toml = ["tomli"]
 
 [[package]]
 name = "crispy-bootstrap5"
-version = "0.7"
+version = "0.6"
 description = "Bootstrap5 template pack for django-crispy-forms"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.6"
 
 [package.dependencies]
-django = ">=3.2"
+django = ">=2.2"
 django-crispy-forms = ">=1.13.0"
 
 [package.extras]
@@ -503,7 +503,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "abba08e252d71c60e0436447693d7f4ba39780aa36757ded25b1669b853a3a8a"
+content-hash = "aaecfbf3161a67d7d5349dd453e51e8abda564fc97a7dad9a9eeb83d55185dfa"
 
 [metadata.files]
 appnope = []
