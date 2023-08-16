@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-hogwarts"
-version = "0.2.2"
+version = "0.2.3"
 description = "Django utilities for codegen and DX improvement"
 authors = ["adiletto64 <adiletdj19@gmail.com>"]
 packages = [{ include = "hogwarts" }]
@@ -13,6 +13,7 @@ keywords = ["django", "django-utils", "codegen"]
 [tool.poetry.dependencies]
 python = "^3.9"
 Jinja2 = "^3.1.2"
+rich = "^13.5.2"
 
 [tool.poetry.dev-dependencies]
 isort = "^5.12.0"
@@ -20,7 +21,6 @@ pytest-django = "^4.5.2"
 ipython = "^8.14.0"
 Django = "4.2.3"
 ruff = "^0.0.280"
-rich = "^13.5.2"
 coverage = "^7.2.7"
 django-crispy-forms = "^2.0"
 crispy-bootstrap5 = "0.6"
