@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'hogwarts',
     'posts',
+    'apps.products',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

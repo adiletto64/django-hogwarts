@@ -2,7 +2,12 @@ import ast
 
 
 def to_plural(string: str):
-    return string if string.endswith("s") else f"{string}s"
+    if string.endswith("s"):
+        return string
+    elif string.endswith("y"):
+        return string[:-1] + "ies"
+    else:
+        return string + "s"
 
 
 def get_imports_list(path: str) -> list[str]:

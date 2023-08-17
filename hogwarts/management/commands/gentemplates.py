@@ -1,6 +1,5 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
-from .base import get_app_config
 from ...magic_templates.gen_templates import gen_templates
 
 

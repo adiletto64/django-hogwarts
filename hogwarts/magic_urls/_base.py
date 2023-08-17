@@ -8,9 +8,15 @@ from typing import Optional, Type
 from django.views import View
 from django.views.generic import DeleteView, DetailView, UpdateView
 
+from hogwarts.utils import to_plural
 
 detail_names = ["Detail", "Update", "Delete"]
-BASE_CLASS_NAMES = ['View', 'ListView', 'CreateView', 'FormView', 'DetailView', 'DeleteView', 'UpdateView']
+BASE_CLASS_NAMES = [
+    'View', 'ListView', 'CreateView', 'FormView', 'DetailView',
+    'DeleteView', 'UpdateView', 'RedirectView', 'TemplateView',
+    'ArchiveIndexView', 'DayArchiveView', 'MonthArchiveView',
+    'YearArchiveView', 'TodayArchiveView', 'WeekArchiveView'
+]
 
 
 class ViewType(Enum):
@@ -45,16 +51,32 @@ def get_path_name(view, app_name: Optional[str] = None):
     return camel_to_snake(name)
 
 
-def get_path_url(path_name: str, detail=False):
+def get_path_url(path_name: str, model_name: str = "none", detail=False):
     if not detail and path_name == "list":
         return ""
 
+    model_name = model_name.lower()
+    if path_name.startswith(model_name):
+        path_url = path_name.replace(f"{model_name}_", "")
+        path_url = path_url.replace("_", "-")
+
+        if detail:
+            path_url = path_url.replace("detail", "")
+            if path_url == "":
+                return f"{to_plural(model_name)}/<int:pk>/"
+            return f"{to_plural(model_name)}/<int:pk>/{path_url}/"
+
+        if path_url == "list":
+            return f"{to_plural(model_name)}/"
+        return f"{to_plural(model_name)}/{path_url}/"
+
     path_url = path_name.replace("_", "-") + "/"
-    if detail:
-        if path_name == 'detail':
-            path_url = "<int:pk>/"
-        else:
-            path_url = "<int:pk>/" + path_url
+
+    if path_name == 'detail':
+        path_url = "<int:pk>/"
+
+    elif detail:
+        path_url = "<int:pk>/" + path_url
 
     return path_url
 
