@@ -7,7 +7,7 @@
 <div class="d-flex w-100 justify-content-center py-4">
     <div class="card card-body shadow-sm" style="max-width: 500px">
         <form method="post">
-            <h3 class="fw-bold">Create [[ model ]]</h3>
+            <h3 class="fw-bold">Create [[ model.lower() ]]</h3>
             {% csrf_token %}
             {{ form|crispy }}
 

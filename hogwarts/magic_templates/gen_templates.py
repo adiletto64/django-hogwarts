@@ -145,7 +145,8 @@ def get_views(app_name: str):
 
 
 def get_paths(app_name: str):
-    urls_py = open(os.path.join(app_name, "urls.py"), "r").read()
+    app_config = apps.get_app_config(app_name)
+    urls_py = open(os.path.join(app_config.path, "urls.py"), "r").read()
     return extract_paths(urls_py)
 
 
