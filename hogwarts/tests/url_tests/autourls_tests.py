@@ -9,7 +9,7 @@ from hogwarts.magic_urls.auto_urls import (
     import_views,
 )
 from hogwarts.magic_urls import custom_path
-from hogwarts.magic_urls._base import get_path_url
+from hogwarts.magic_urls.base import get_path_url
 
 
 class ProductCreateView(View): pass

@@ -3,7 +3,7 @@ import re
 from inspect import isclass
 from typing import Tuple, Optional
 
-from hogwarts.magic_urls._base import import_views, get_path_name, get_path_url, view_is_detail
+from hogwarts.magic_urls.base import import_views, get_path_name, get_path_url, view_is_detail
 from .decorators import PathDecorator
 
 

@@ -1,4 +1,4 @@
-from hogwarts.magic_urls._base import get_path_url
+from hogwarts.magic_urls.base import get_path_url
 
 
 def test_get_path_url():

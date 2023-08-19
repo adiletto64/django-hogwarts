@@ -3,7 +3,7 @@ from typing import Optional
 
 from django.urls import path
 
-from ._base import (
+from .base import (
     import_views,
     get_path_name,
     get_path_url,

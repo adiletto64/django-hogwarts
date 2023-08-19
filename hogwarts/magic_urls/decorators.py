@@ -1,6 +1,6 @@
 from typing import Optional
 
-from hogwarts.magic_urls._base import Path, get_path_url
+from hogwarts.magic_urls.base import Path, get_path_url
 
 
 def custom_path(

@@ -3,7 +3,7 @@ import os
 from pytest import fixture
 from django.apps import apps
 
-from hogwarts.magic_urls._base import import_views
+from hogwarts.magic_urls.base import import_views
 from hogwarts.magic_urls.gen_urls import gen_path, UrlGenerator
 from hogwarts.magic_urls import custom_path
 

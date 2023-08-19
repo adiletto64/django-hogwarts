@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db.models import Model
 from django.apps import apps
 
-from hogwarts.magic_urls._base import import_views
+from hogwarts.magic_urls.base import import_views
 from hogwarts.magic_urls.utils import Path, extract_paths
 from hogwarts.management.commands.base import get_views_module
 
@@ -43,6 +43,9 @@ def gen_templates(app_name: str):
         fields = [field.name for field in endpoint.model._meta.fields]
         model_name = endpoint.model.__name__
 
+        if template_exists(endpoint.template_name):
+            continue
+
         if endpoint.view_type == ViewType.CREATE:
             result = render_template({"model": model_name}, "create")
             write_template(endpoint.template_name, result)
@@ -52,7 +55,6 @@ def gen_templates(app_name: str):
             result = render_template({"model": model_name}, "update")
             write_template(endpoint.template_name, result)
             print("created template:", endpoint.template_name)
-
 
         elif endpoint.view_type == ViewType.LIST:
             name = endpoint.view.context_object_name
@@ -109,6 +111,10 @@ def write_template(template_path, content):
 
     with open(full_path, 'w') as file:
         file.write(content)
+
+
+def template_exists(template_path):
+    return os.path.exists(os.path.join(TEMPLATES_FOLDER, template_path))
 
 
 def get_endpoints(app_name: str):
