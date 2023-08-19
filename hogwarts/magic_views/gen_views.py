@@ -1,9 +1,17 @@
-from ..utils import to_plural, code_strip, remove_empty_lines
+from typing import Optional
+
+from ..utils import to_plural, code_strip, remove_empty_lines, parse_class_names, remove_imports
 from .gen_imports import ViewImportsGenerator
 
 
 class ViewGenerator:
-    def __init__(self, model, smart_mode=False, model_is_namespace=False):
+    def __init__(
+            self,
+            model,
+            smart_mode=False,
+            model_is_namespace=False,
+            code: Optional[str] = None
+    ):
         self.smart_mode = smart_mode
         self.model_is_namespace = model_is_namespace
 
@@ -11,6 +19,12 @@ class ViewGenerator:
         self.name = model.__name__.lower()
         self.fields = [field.name for field in model._meta.fields if field.editable]
         self.creator_field = None
+        self.code = code
+        self.merge = code is not None
+        self.existing_class_names = []
+
+        if self.code:
+            self.existing_class_names = parse_class_names(self.code)
 
         for field in self.fields:
             if field in ["user", "author", "owner", "creator"]:
@@ -28,18 +42,28 @@ class ViewGenerator:
         update = self.update()
 
         result = code_strip(self.gen_imports())
+        if self.merge:
+            result += "\n"
+            result += remove_imports(self.code)
 
         for view in [detail, _list, create, update]:
-            result += f"\n\n{code_strip(view)}"
+            if view is not None:
+                result += f"\n\n{code_strip(view)}"
         return result
 
     def gen_imports(self):
+        if self.merge:
+            self.imports_generator.parse_imports(self.code)
+
         self.imports_generator.add_bulk("django.views.generic", self.generic_views)
         self.imports_generator.add(".models", self.model_name)
 
         return self.imports_generator.gen()
 
     def create(self):
+        if self.merge and f"{self.model_name}CreateView" in self.existing_class_names:
+            return None
+
         self.generic_views.append("CreateView")
         builder = self.get_builder("create")
 
@@ -71,21 +95,26 @@ class ViewGenerator:
         return builder.gen()
 
     def update(self):
+        if self.merge and f"{self.model_name}UpdateView" in self.existing_class_names:
+            return None
+
         self.generic_views.append("UpdateView")
         builder = self.get_builder("update")
         builder.set_fields(self.fields)
         self.set_template(builder, "update")
 
         if self.smart_mode:
-            self.imports_generator.add_user_test()
-            builder.set_class("update", ["UserPassesTestMixin"])
-
             if self.creator_field:
+                self.imports_generator.add_user_test()
+                builder.set_class("update", ["UserPassesTestMixin"])
                 function = """
                 def test_func(self):
                     return self.get_object() == self.request.user
                 """
                 builder.set_extra_code(code_strip(function))
+            else:
+                self.imports_generator.add_login_required()
+                builder.set_class("update", ["LoginRequiredMixin"])
 
         if self.model_is_namespace:
             self.imports_generator.add_reverse()
@@ -100,6 +129,9 @@ class ViewGenerator:
         return builder.gen()
 
     def detail(self):
+        if self.merge and f"{self.model_name}DetailView" in self.existing_class_names:
+            return None
+
         self.generic_views.append("DetailView")
         builder = self.get_builder("detail")
         builder.set_context_object_name(self.name)
@@ -108,6 +140,9 @@ class ViewGenerator:
         return builder.gen()
 
     def list(self):
+        if self.merge and f"{self.model_name}ListView" in self.existing_class_names:
+            return None
+
         self.generic_views.append("ListView")
         builder = self.get_builder("list")
         builder.set_context_object_name(to_plural(self.name))

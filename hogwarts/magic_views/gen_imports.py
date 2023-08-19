@@ -1,3 +1,4 @@
+import ast
 from typing import Tuple
 
 Imports = list[Tuple[str, str]]
@@ -21,8 +22,11 @@ class ImportsGenerator:
     def gen(self):
         merged_imports = self.get_merge_imports()
         result = ""
-        for module, obj in merged_imports.items():
-            result += f"from {module} import {', '.join(obj)}\n"
+        for module, objs in merged_imports.items():
+            if module is None:
+                result += f"import {', '.join(objs)}\n"
+            else:
+                result += f"from {module} import {', '.join(objs)}\n"
 
         return result
 
@@ -34,6 +38,22 @@ class ImportsGenerator:
             else:
                 merged_imports[module].append(obj)
         return merged_imports
+
+    def parse_imports(self, code):
+        imports = []
+        tree = ast.parse(code)
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    self.add(None, alias.name)
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module
+                for alias in node.names:
+                    if module:
+                        self.add(f"{'.' * node.level}{module}", alias.name)
+
+        return imports
 
     @property
     def imported_classes(self):

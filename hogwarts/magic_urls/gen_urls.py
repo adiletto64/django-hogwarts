@@ -95,7 +95,7 @@ class UrlMerger(BaseUrl):
         return urlpatterns
 
 
-def gen_path(view, app_name, from_view_file: bool) -> str:
+def gen_path(view, app_name, from_view_file=False) -> str:
     decorator = PathDecorator(view)
     if decorator.exists():
         path_name = decorator.get_path_name()

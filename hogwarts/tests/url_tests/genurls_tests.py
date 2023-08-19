@@ -70,6 +70,7 @@ def test_it_generates_imports(generator):
     expected = """
         from django.urls import path
     
-        from .views import MyListView, MyFormView, get_view"""
+        from .views import MyListView, MyFormView, get_view
+    """
 
     assert code_strip(result) == code_strip(expected)

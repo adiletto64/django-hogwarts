@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from .base import get_app_config
 from hogwarts.magic_views import ViewGenerator
+from ...utils import parse_class_names
 
 
 class Command(BaseCommand):
@@ -42,9 +43,18 @@ class Command(BaseCommand):
         if model_is_namespace or model_name.lower() in app_name:
             namespace_model = True
 
-        code = ViewGenerator(model, smart_mode, namespace_model).gen()
-
         path = os.path.join(app_config.path, "views.py")
+
+        generator = ViewGenerator(model, smart_mode, namespace_model)
+
+        with open(path, "r") as file:
+            existing_code = file.read()
+            is_empty = len(parse_class_names(existing_code)) == 0
+            if not is_empty:
+                generator = ViewGenerator(model, smart_mode, namespace_model, code=existing_code)
+
+        code = generator.gen()
+
         with open(path, 'w') as file:
             file.write(code)
 
