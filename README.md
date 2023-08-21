@@ -1,15 +1,10 @@
 <h1 align="center">Django hogwarts 🧙‍♂️</h1>
 <h4 align="center">Management commands to generate views, urls and templates!</h4>
 
-> [!WARNING]
-> Customization and documentation are incomplete 
-
 Use CLI commands to generate:
 - basic create, update, list, detail views
 - urlpatterns from views with REST like path urls
 - form, table, detail templates (Bootstrap and django-crispy-forms by default)
-
-[checkout docs](https://django-hogwarts.vercel.app/)
 
 ---
 
@@ -39,7 +34,6 @@ python manage.py genurls <your-app-name>
 ```
 
 Arguments:
-- `--merge`, `-m` add new paths without changing existing paths in urls.py
 - `--force-app-name`, `fan` override app_name in urls.py 
 
 ### Generate views.py
@@ -51,6 +45,10 @@ Arguments
 - `model-is-namespace`, `-mn` adds success_url with name model as [namespace](https://docs.djangoproject.com/en/4.2/topics/http/urls/#url-namespaces)
 
 ### Generate templates
+
+**[django-crispy-forms](https://github.com/django-crispy-forms/django-crispy-forms) and
+[crispy-bootstrap5](https://github.com/django-crispy-forms/crispy-bootstrap5) packages are required**
+
 ``` 
 python manage.py gentemplates <your-app-name>
 ```
