@@ -54,7 +54,7 @@ class Command(BaseCommand):
             existing_code = file.read()
             is_empty = len(parse_class_names(existing_code)) == 0
             if not is_empty:
-                console.print("existing views found (merging new views)", style="yellow")
+                console.print("existing views detected 📜 (merging new views)", style="bright_black")
                 generator = ViewGenerator(model, smart_mode, namespace_model, code=existing_code)
 
         code = generator.gen()

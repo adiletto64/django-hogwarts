@@ -63,5 +63,6 @@ class Command(BaseCommand):
 
         else:
             url_generator.gen_urls_py()
+            console.print("adding new paths...", style="bright_black")
             console.print("urlpatterns have been generated ✅", style="green")
 
