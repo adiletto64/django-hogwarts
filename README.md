@@ -52,3 +52,7 @@ Arguments
 ``` 
 python manage.py gentemplates <your-app-name>
 ```
+
+Want to create own scaffolding templates? 
+1. create folder, copy and customize from [this templates](https://github.com/adiletto64/django-hogwarts/tree/master/hogwarts/scaffold)
+2. add that folder to setting `HOGWARTS_SCAFFOLD_FOLDER = "<your-folder>"`

@@ -16,11 +16,14 @@ from hogwarts.management.commands.base import get_views_module
 
 GENERIC_VIEWS = ("CreateView", "UpdateView", "ListView", "DetailView")
 
-SCAFFOLD_FOLDER = os.path.join(apps.get_app_config("hogwarts").path, "scaffold")
+CUSTOM_SCAFFOLD_FOLDER = getattr(settings, "HOGWARTS_SCAFFOLD_FOLDER", False)
+SCAFFOLD_FOLDER = CUSTOM_SCAFFOLD_FOLDER or os.path.join(apps.get_app_config("hogwarts").path, "scaffold")
+
 TEMPLATES_FOLDER = settings.TEMPLATES[0]["DIRS"][0]
 env = Environment("[#", "#]", "[[", "]]")
 
 console = Console()
+
 
 class ViewType(Enum):
     CREATE = "CreateView"
@@ -41,6 +44,10 @@ class Endpoint:
 def gen_templates(app_name: str):
     endpoints = get_endpoints(app_name)
     console.print(f"generating in templates folder [bold]{TEMPLATES_FOLDER}")
+    if CUSTOM_SCAFFOLD_FOLDER:
+        console.print(f"using custom scaffold {CUSTOM_SCAFFOLD_FOLDER}", style="yellow")
+    else:
+        console.print(f"using default scaffold folder", style="bright_black")
 
     for endpoint in endpoints:
         fields = [field.name for field in endpoint.model._meta.fields]
