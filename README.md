@@ -1,10 +1,12 @@
 <h1 align="center">Django hogwarts 🧙‍♂️</h1>
-<h4 align="center">Management commands to generate views, urls and templates!</h4>
+<h4 align="center">Management commands to generate views, urls and templates</h4>
 
 Use CLI commands to generate:
 - basic create, update, list, detail views
 - urlpatterns from views with REST like path urls
 - form, table, detail templates (Bootstrap and django-crispy-forms by default)
+
+**all commands does not remove or override existing views, paths and templates**
 
 ---
 
@@ -26,7 +28,7 @@ INSTALLED_APPS = [
 ```
 
 ## Usage
-
+> Check [this](./docs/conventions.md) to know what urls will be generated
 ### Generate urls.py
 
 ```
@@ -37,6 +39,7 @@ Arguments:
 - `--force-app-name`, `fan` override app_name in urls.py 
 
 ### Generate views.py
+> Check [demo](./docs/gen_views_example.md)
 ```
 python manage.py genviews <your-app-name> <model-name>
 ```
@@ -56,3 +59,10 @@ python manage.py gentemplates <your-app-name>
 Want to create own scaffolding templates? 
 1. create folder, copy and customize from [this templates](https://github.com/adiletto64/django-hogwarts/tree/master/hogwarts/scaffold)
 2. add that folder to setting `HOGWARTS_SCAFFOLD_FOLDER = "<your-folder>"`
+
+## Roadmap
+- tests generator
+- scaffolding all views, urls and templates from a single command
+- maybe rest-framework support (let me know in issues)
+
+

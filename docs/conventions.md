@@ -1,14 +1,7 @@
 # Conventions
 
-## What view names should you use
-1. both path url and name without suffix 'view'
-2. path name -> snake_case view name
-3. path url -> url params (if needed) + kebab-case path name
-4. `<int:pk>/` will be added if view inherit `DetailView, UpdateView and DeleteView`
-5. path url without `list` if view inherits `ListView`
-6. path url without provided app_name (e.g. `auto_urls(views, app_name="products")`)
 
-## What urls will be generated
+### What urls will be generated
 
 Here is the table of what will be generated for app posts, and it's views
 
@@ -22,7 +15,7 @@ Here is the table of what will be generated for app posts, and it's views
 | SetReadView    | set-read/        | set_read  |
 | send_view      | send/            | send      |
 
-1. if view contains one of this words: 'list', 'create', 'detail', 'delete', 'update', then <int:pk> will be set 
+1. if view contains one of this words: 'create', 'detail', 'delete', 'update', then <int:pk> will be set 
 to URL
 
 2. if view has two or more words (except 'view' suffix) in url it will be dashed version (kebab-case)
