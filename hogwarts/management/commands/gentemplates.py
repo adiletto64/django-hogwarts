@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from ...magic_templates.gen_templates import gen_templates
 
+from ...magic_templates.gen_templates import gen_templates
 
 class Command(BaseCommand):
     help = "Code generation command"
@@ -11,7 +11,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         app_name: str = options["app"]
-
         gen_templates(app_name)
-
-        print("Successfully created")

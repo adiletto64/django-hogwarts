@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Type, Union
 
+from rich.console import Console
 from jinja2 import Environment
 from django.views.generic import DetailView, CreateView
 from django.conf import settings
@@ -19,6 +20,7 @@ SCAFFOLD_FOLDER = os.path.join(apps.get_app_config("hogwarts").path, "scaffold")
 TEMPLATES_FOLDER = settings.TEMPLATES[0]["DIRS"][0]
 env = Environment("[#", "#]", "[[", "]]")
 
+console = Console()
 
 class ViewType(Enum):
     CREATE = "CreateView"
@@ -38,6 +40,7 @@ class Endpoint:
 
 def gen_templates(app_name: str):
     endpoints = get_endpoints(app_name)
+    console.print(f"generating in templates folder [bold]{TEMPLATES_FOLDER}")
 
     for endpoint in endpoints:
         fields = [field.name for field in endpoint.model._meta.fields]
@@ -49,12 +52,12 @@ def gen_templates(app_name: str):
         if endpoint.view_type == ViewType.CREATE:
             result = render_template({"model": model_name}, "create")
             write_template(endpoint.template_name, result)
-            print("created template:", endpoint.template_name)
+            console.print("created template:", endpoint.template_name, style="bright_black")
 
         elif endpoint.view_type == ViewType.UPDATE:
             result = render_template({"model": model_name}, "update")
             write_template(endpoint.template_name, result)
-            print("created template:", endpoint.template_name)
+            console.print("created template:", endpoint.template_name, style="bright_black")
 
         elif endpoint.view_type == ViewType.LIST:
             name = endpoint.view.context_object_name
@@ -71,7 +74,7 @@ def gen_templates(app_name: str):
 
             result = render_template(context_data, "list")
             write_template(endpoint.template_name, result)
-            print("created template:", endpoint.template_name)
+            console.print("created template:", endpoint.template_name, style="bright_black")
 
         elif endpoint.view_type == ViewType.DETAIL:
             name = endpoint.view.context_object_name
@@ -86,7 +89,7 @@ def gen_templates(app_name: str):
 
             result = render_template(context_data, "detail")
             write_template(endpoint.template_name, result)
-            print("created template:", endpoint.template_name)
+            console.print("created template:", endpoint.template_name, style="bright_black")
 
 
 def find_path_name(endpoints: list[Endpoint], model, view_type: ViewType):
