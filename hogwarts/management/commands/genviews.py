@@ -1,11 +1,14 @@
 import os
 
+from rich.console import Console
 from django.core.management.base import BaseCommand, CommandError
 
 from .base import get_app_config
 from hogwarts.magic_views import ViewGenerator
 from ...utils import parse_class_names
 
+
+console = Console()
 
 class Command(BaseCommand):
     help = "Code generation command"
@@ -51,6 +54,7 @@ class Command(BaseCommand):
             existing_code = file.read()
             is_empty = len(parse_class_names(existing_code)) == 0
             if not is_empty:
+                console.print("existing views found (merging new views)", style="yellow")
                 generator = ViewGenerator(model, smart_mode, namespace_model, code=existing_code)
 
         code = generator.gen()

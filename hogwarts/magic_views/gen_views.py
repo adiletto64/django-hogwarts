@@ -1,7 +1,11 @@
 from typing import Optional
+from rich.console import Console
 
 from ..utils import to_plural, code_strip, remove_empty_lines, parse_class_names, remove_imports
 from .gen_imports import ViewImportsGenerator
+
+
+console = Console()
 
 
 class ViewGenerator:
@@ -49,6 +53,7 @@ class ViewGenerator:
         for view in [detail, _list, create, update]:
             if view is not None:
                 result += f"\n\n{code_strip(view)}"
+                console.print(f"generated {view.splitlines()[0]}", style="bright_black")
         return result
 
     def gen_imports(self):
