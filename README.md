@@ -6,7 +6,7 @@ Use CLI commands to generate:
 - urlpatterns from views with REST like path urls
 - form, table, detail templates (Bootstrap and django-crispy-forms by default)
 
-**all commands does not remove or override existing views, paths and templates**
+**all commands will respect (will not change) existing code**
 
 ---
 
@@ -30,16 +30,17 @@ INSTALLED_APPS = [
 ## Usage
 > Check [this](./docs/conventions.md) to know what urls will be generated
 ### Generate urls.py
-
+Generates paths for views from views.py
 ```
 python manage.py genurls <your-app-name>
 ```
 
 Arguments:
-- `--force-app-name`, `fan` override app_name in urls.py 
+- `--force-app-name`, `fan` override app_name variable in urls.py 
 
 ### Generate views.py
-> Check [demo](./docs/gen_views_example.md)
+Generates create, update, detail, list views for model.
+Checkout the [demo](./docs/gen_views_example.md)
 ```
 python manage.py genviews <your-app-name> <model-name>
 ```
@@ -48,6 +49,7 @@ Arguments
 - `model-is-namespace`, `-mn` adds success_url with name model as [namespace](https://docs.djangoproject.com/en/4.2/topics/http/urls/#url-namespaces)
 
 ### Generate templates
+Generates templates from `template_name`s from views from given app
 
 **[django-crispy-forms](https://github.com/django-crispy-forms/django-crispy-forms) and
 [crispy-bootstrap5](https://github.com/django-crispy-forms/crispy-bootstrap5) packages are required**
