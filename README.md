@@ -64,9 +64,17 @@ Want to create own scaffolding templates?
 1. create folder, copy and customize from [this templates](https://github.com/adiletto64/django-hogwarts/tree/master/hogwarts/scaffold)
 2. add that folder to setting `HOGWARTS_SCAFFOLD_FOLDER = "<your-folder>"`
 
+### Scaffolding
+
+Generates views, urls and templates for given app (every model in app)
+
+``` 
+python manage.py scaffold <your-app-name>
+```
+
+
 ## Roadmap
 - tests generator
-- scaffolding all views, urls and templates from a single command
 - maybe rest-framework support (let me know in issues)
 
 
