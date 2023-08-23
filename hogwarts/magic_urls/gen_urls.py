@@ -216,6 +216,9 @@ def get_app_name(code: str) -> Optional[str]:
 
 
 def urlpatterns_is_empty(code):
+    if code.strip() == "" or "urlpatterns" not in code:
+        return True
+
     result = re.search(r'urlpatterns\s*=\s*\[\s*\]', code)
     return result is not None
 
