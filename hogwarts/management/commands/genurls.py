@@ -58,9 +58,6 @@ class Command(BaseCommand):
             console.print("adding new paths...", style="bright_black")
             console.print("new paths merged to urlpatterns ✅", style="green")
 
-            # url_generator.gen_urls_py()
-            # console.print("urlpatterns have been generated ✅", style="green")
-
         else:
             url_generator.gen_urls_py()
             console.print("adding new paths...", style="bright_black")
