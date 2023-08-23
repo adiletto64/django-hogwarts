@@ -37,6 +37,8 @@ python manage.py genurls <your-app-name>
 
 Arguments:
 - `--force-app-name`, `fan` override app_name variable in urls.py 
+- `--override`, `-o` fully overrides existing code in urls.py (previous code will be deleted)
+- `--single-import`, `-s` instead of importing individual view, imports just module`from . import views`
 
 ### Generate views.py
 Generates create, update, detail, list views for model.
