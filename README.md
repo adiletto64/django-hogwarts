@@ -16,7 +16,7 @@ Use CLI commands to generate:
 pip install django-hogwarts
 
 # poetry
-poetry add --dev django-hogwarts
+poetry add django-hogwarts
 ```
 
 add `hogwarts` to your `INSTALLED_APPS`:
