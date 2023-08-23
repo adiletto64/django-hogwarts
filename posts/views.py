@@ -10,6 +10,27 @@ class PostDetailView(DetailView):
     template_name = "posts/post_detail.html"
 
 
+class PostUpdateView(LoginRequiredMixin, UpdateView):
+    model = Post
+    fields = ["id", "title", "tags", "content"]
+    template_name = "posts/post_update.html"
+
+    def get_success_url(self):
+        return reverse("posts:detail", args=[self.get_object().id])
+
+
+class CommentUpdateView(UserPassesTestMixin, UpdateView):
+    model = Comment
+    fields = ["id", "post", "text"]
+    template_name = "comments/comment_update.html"
+
+    def test_func(self):
+        return self.get_object() == self.request.user
+
+    def get_success_url(self):
+        return reverse("comments:detail", args=[self.get_object().id])
+
+
 class PostListView(ListView):
     model = Post
     context_object_name = "posts"
@@ -23,15 +44,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse("posts:detail", args=[self.object.id])
-
-
-class PostUpdateView(LoginRequiredMixin, UpdateView):
-    model = Post
-    fields = ["id", "title", "tags", "content"]
-    template_name = "posts/post_update.html"
-
-    def get_success_url(self):
-        return reverse("posts:detail", args=[self.get_object().id])
 
 
 class CommentDetailView(DetailView):
@@ -57,15 +69,3 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse("comments:detail", args=[self.object.id])
-
-
-class CommentUpdateView(UserPassesTestMixin, UpdateView):
-    model = Comment
-    fields = ["id", "post", "text"]
-    template_name = "comments/comment_update.html"
-
-    def test_func(self):
-        return self.get_object() == self.request.user
-
-    def get_success_url(self):
-        return reverse("comments:detail", args=[self.get_object().id])

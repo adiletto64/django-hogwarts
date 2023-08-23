@@ -1,9 +1,0 @@
-{% include 'menu.html' %}
-
-<h1>Create</h1>
-
-<form method="post">
-    {% csrf_token %}
-    <input type="text" name="message" placeholder="message">
-    <button type="submit">submit</button>
-</form>

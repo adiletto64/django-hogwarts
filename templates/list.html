@@ -1,5 +1,0 @@
-{% include 'menu.html' %}
-
-{% for e in examples %}
-    <h1><a href="{% url 'example:detail' e.pk %}">{{ e.message }}</a></h1>
-{% endfor %}
