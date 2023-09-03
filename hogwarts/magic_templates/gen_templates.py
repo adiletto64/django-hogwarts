@@ -35,9 +35,9 @@ class ViewType(Enum):
 @dataclass
 class Endpoint:
     view: Union[DetailView, CreateView]
-    template_name: str
+    template_name: Optional[str]
     path_name: str
-    model: Type[Model]
+    model: Optional[Type[Model]]
     view_type: Optional[ViewType]
 
 
@@ -50,11 +50,11 @@ def gen_templates(app_name: str):
         console.print(f"using default scaffold folder", style="bright_black")
 
     for endpoint in endpoints:
+        if not endpoint.model or template_exists(endpoint.template_name):
+            continue
+
         fields = [field.name for field in endpoint.model._meta.fields]
         model_name = endpoint.model.__name__
-
-        if template_exists(endpoint.template_name):
-            continue
 
         if endpoint.view_type == ViewType.CREATE:
             result = render_template({"model": model_name}, "create")
@@ -150,9 +150,17 @@ def get_endpoint(view, paths: list[Path], app_name: Optional[str]):
 
     path_name = f"{app_name}:{path_name}" if app_name else path_name
     view_type = get_view_type(view.__name__)
-    model = view.model
+    model = None
 
-    return Endpoint(view, view.template_name, path_name, model, view_type)
+    if hasattr(view, 'model') and view.model is not None:
+        model = view.model
+    else:
+        try: model = view.form_class._meta.model
+        except: pass
+
+    template = getattr(view, "template_name", None)
+
+    return Endpoint(view, template, path_name, model, view_type)
 
 
 def get_views(app_name: str):
