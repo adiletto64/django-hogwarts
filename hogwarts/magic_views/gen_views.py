@@ -22,6 +22,9 @@ class ViewGenerator:
         self.model_name = model.__name__
         self.name = model.__name__.lower()
         self.fields = [field.name for field in model._meta.fields if field.editable]
+        if "id" in self.fields:
+            self.fields.remove("id")
+
         self.creator_field = None
         self.code = code
         self.merge = code is not None
