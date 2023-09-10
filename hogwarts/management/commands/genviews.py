@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from rich.console import Console
 from django.core.management.base import BaseCommand, CommandError
@@ -30,11 +31,17 @@ class Command(BaseCommand):
                  "or try for yourself"
         )
 
+        parser.add_argument(
+            "--file", "-f",
+            help="What views file it should read and write"
+        )
+
     def handle(self, *args, **options):
         app_name: str = options["app"]
         model_name: str = options["model"]
         smart_mode: bool = options["smart_mode"]
         model_is_namespace: bool = options["model_is_namespace"]
+        views_file: Optional[str] = options["file"]
 
         app_config = get_app_config(app_name)
 
@@ -46,7 +53,8 @@ class Command(BaseCommand):
         if model_is_namespace or model_name.lower() in app_name:
             namespace_model = True
 
-        path = os.path.join(app_config.path, "views.py")
+        path = os.path.join(app_config.path, views_file or "views.py")
+        self.create_path_if_not_exists(path)
 
         generator = ViewGenerator(model, smart_mode, namespace_model)
 
@@ -65,3 +73,13 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(f"Generated CRUD views in {path}")
         )
+
+    def create_path_if_not_exists(self, path):
+        directory = os.path.dirname(path)
+
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            console.print("")
+
+        if not os.path.exists(path):
+            open(path, 'a').close()

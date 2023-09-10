@@ -47,8 +47,9 @@ Checkout the [demo](./docs/gen_views_example.md)
 python manage.py genviews <your-app-name> <model-name>
 ```
 Arguments
-- `smart-mode`, `-s` adds login required, sets user for CreateView and checks if client is owner of object in UpdateView
-- `model-is-namespace`, `-mn` adds success_url with name model as [namespace](https://docs.djangoproject.com/en/4.2/topics/http/urls/#url-namespaces)
+- `--smart-mode`, `-s` adds login required, sets user for CreateView and checks if client is owner of object in UpdateView
+- `--model-is-namespace`, `-mn` adds success_url with name model as [namespace](https://docs.djangoproject.com/en/4.2/topics/http/urls/#url-namespaces)
+- `--file`, `-f` specify view file (example: "views/posts_view.py" or "new_views.py") in your app
 
 ### Generate templates
 Generates templates from `template_name`s from views from given app
