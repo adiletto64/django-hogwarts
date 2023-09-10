@@ -18,7 +18,7 @@ def extract_paths(code: str):
             first_arg = parts[1]
             second_arg = parts[2].split(',')[1].strip()
             if second_arg.endswith(".as_view()"):
-                second_arg = second_arg.split(".")[0]
+                second_arg = second_arg.split(".")[-2]
 
             third_arg = parts[3]
             extracted_list.append(Path(first_arg, second_arg, third_arg))

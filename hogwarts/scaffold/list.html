@@ -13,7 +13,7 @@
             <thead>
                 <tr>
                     [# for field in fields -#]
-                        <td>[[ field ]]</td>
+                        <td>[[ field.verbose_name ]]</td>
                     [# endfor #]
                 </tr>
             </thead>
@@ -21,16 +21,16 @@
                 [[ body_fields ]]
                 {% for [[ item ]] in [[ items ]] %}
                     <tr>
-                        <td>{{ [[ item ]].[[ fields[0] ]] }}</td>
+                        <td>{{ [[ item ]].[[ fields[0].name ]] }}</td>
                         [# if detail_path_name -#]
                         <td>
-                            <a href="{% url "[[ detail_path_name ]]" [[item]].pk %}">{{ [[ item ]].[[ fields[1] ]] }}</a>
+                            <a href="{% url "[[ detail_path_name ]]" [[item]].pk %}">{{ [[ item ]].[[ fields[1].name ]] }}</a>
                         </td>
                         [# else #]
-                        <td>{{ [[ item ]].[[ fields[1] ]] }}</td>
+                        <td>{{ [[ item ]].[[ fields[1].name ]] }}</td>
                         [#- endif -#]
                         [#- for field in fields[2:] -#]
-                            <td>{{ [[ item ]].[[ field ]] }}</td>
+                            <td>{{ [[ item ]].[[ field.name ]] }}</td>
                         [# endfor #]
                     </tr>
                 {% endfor %}

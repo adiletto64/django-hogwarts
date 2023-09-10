@@ -6,10 +6,13 @@ User = get_user_model()
 
 
 class Post(models.Model):
-    title = models.CharField(max_length=255)
-    tags = models.CharField(max_length=255, help_text="write hashtags seperated by comma")
-    content = models.TextField(help_text="You can use markdown!")
-    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=255, verbose_name="название")
+    tags = models.CharField(max_length=255, help_text="write hashtags seperated by comma", verbose_name="теги")
+    content = models.TextField(help_text="You can use markdown!", verbose_name="контент")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="создан")
+
+    class Meta:
+        verbose_name = "Пост"
 
 
 class Comment(models.Model):

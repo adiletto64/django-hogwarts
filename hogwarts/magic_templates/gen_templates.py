@@ -53,7 +53,7 @@ def gen_templates(app_name: str):
         if not endpoint.model or template_exists(endpoint.template_name):
             continue
 
-        fields = [field.name for field in endpoint.model._meta.fields]
+        fields = [field for field in endpoint.model._meta.fields]
         model_name = endpoint.model.__name__
 
         if endpoint.view_type == ViewType.CREATE:
@@ -101,7 +101,7 @@ def gen_templates(app_name: str):
 
 def find_path_name(endpoints: list[Endpoint], model, view_type: ViewType):
     for endpoint in endpoints:
-        if endpoint.model == model and endpoint.view_type == view_type:
+        if endpoint.model == model and endpoint.view_type == view_type and endpoint.path_name:
             return endpoint.path_name
 
     return None
@@ -119,8 +119,8 @@ def write_template(template_path, content):
     dir_path, file_name = os.path.split(full_path)
     os.makedirs(dir_path, exist_ok=True)
 
-    with open(full_path, 'w') as file:
-        file.write(content)
+    with open(full_path, 'wb') as file:
+        file.write(content.encode("utf-8"))
 
 
 def template_exists(template_path):
@@ -144,11 +144,15 @@ def get_endpoints(app_name: str):
 def get_endpoint(view, paths: list[Path], app_name: Optional[str]):
     path_name = None
 
+    found = False
     for path in paths:
         if path.view == view.__name__:
             path_name = path.path_name
+            found = True
 
-    path_name = f"{app_name}:{path_name}" if app_name else path_name
+    if found:
+        path_name = f"{app_name}:{path_name}" if app_name else path_name
+
     view_type = get_view_type(view.__name__)
     model = None
 

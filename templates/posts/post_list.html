@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="px-5 py-4">
+        <div class="d-flex justify-content-between">
+            <h3>posts list</h3>
+            
+            <a href="{% url "posts:create" %}" class="btn btn-dark">create</a>
+            
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>название</td>
+                    <td>теги</td>
+                    <td>контент</td>
+                    <td>создан</td>
+                    
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                
+                {% for post in posts %}
+                    <tr>
+                        <td>{{ post.id }}</td>
+                        <td>
+                            <a href="{% url "posts:detail" post.pk %}">{{ post.title }}</a>
+                        </td>
+                        <td>{{ post.tags }}</td>
+                        <td>{{ post.content }}</td>
+                        <td>{{ post.created_at }}</td>
+                        
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+{% endblock %}
