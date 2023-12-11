@@ -73,7 +73,7 @@ def gen_templates(app_name: str):
 
             context_data = {
                 "fields": fields,
-                "item": name[:-1],
+                "item": model_name.lower(),
                 "items": name,
                 "create_path_name": create_path_name,
                 "detail_path_name": detail_path_name
