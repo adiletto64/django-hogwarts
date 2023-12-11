@@ -35,7 +35,7 @@ def test_it_generated_create_view():
     expected_code = """
     class ArticleCreateView(CreateView):
         model = Article
-        fields = ["id", "title", "description", "beta"]
+        fields = ["title", "description", "beta"]
         template_name = "articles/article_create.html"
         success_url = "/"
     """
@@ -48,7 +48,7 @@ def test_it_generated_update_view():
     expected_code = """
     class ArticleUpdateView(UpdateView):
         model = Article
-        fields = ["id", "title", "description", "beta"]
+        fields = ["title", "description", "beta"]
         template_name = "articles/article_update.html"
         success_url = "/"
     """
@@ -64,7 +64,7 @@ def test_smart_mode_create_view():
     expected_code = """
     class ArticleCreateView(LoginRequiredMixin, CreateView):
         model = Article
-        fields = ["id", "title", "description", "beta"]
+        fields = ["title", "description", "beta"]
         template_name = "articles/article_create.html"
         success_url = "/"
         
@@ -81,7 +81,7 @@ def test_smart_mode_update_view():
     expected_code = """
     class ArticleUpdateView(UserPassesTestMixin, UpdateView):
         model = Article
-        fields = ["id", "title", "description", "beta"]
+        fields = ["title", "description", "beta"]
         template_name = "articles/article_update.html"
         success_url = "/"
         
@@ -100,7 +100,7 @@ def test_namespace_create_view():
     expected_code = """
     class ArticleCreateView(CreateView):
         model = Article
-        fields = ["id", "title", "description", "beta"]
+        fields = ["title", "description", "beta"]
         template_name = "articles/article_create.html"
     
         def get_success_url(self):
@@ -115,7 +115,7 @@ def test_namespace_update_view():
     expected_code = """
     class ArticleUpdateView(UpdateView):
         model = Article
-        fields = ["id", "title", "description", "beta"]
+        fields = ["title", "description", "beta"]
         template_name = "articles/article_update.html"
         
         def get_success_url(self):
@@ -132,7 +132,7 @@ def test_smart_mode_and_namespace_does_not_conflict():
     expected_code = """
     class ArticleCreateView(LoginRequiredMixin, CreateView):
         model = Article
-        fields = ["id", "title", "description", "beta"]
+        fields = ["title", "description", "beta"]
         template_name = "articles/article_create.html"
         
         def form_valid(self, form):
