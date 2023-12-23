@@ -84,4 +84,6 @@ python manage.py scaffold <your-app-name>
 - tests generator
 - maybe rest-framework support (let me know in issues)
 
-
+## Development
+Before all create config folder and copy everything from example_config 
+to config folder
