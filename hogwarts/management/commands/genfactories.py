@@ -3,9 +3,8 @@ import os
 from django.core.management.base import BaseCommand
 from rich.console import Console
 
-from hogwarts.magic_urls.gen_urls import UrlGenerator, urlpatterns_is_empty, UrlMerger
-from .base import get_app_config, get_views_module, get_models_py_code
-from ...magic_tests.factory import generate_factories_code
+from .base import get_app_config, get_models_py_code
+from hogwarts.magic_tests.factory import generate_factories_code
 
 console = Console()
 

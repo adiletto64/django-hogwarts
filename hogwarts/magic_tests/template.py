@@ -28,8 +28,6 @@ class {endpoints[0].get_view_model().__name__}TestCase(TestCase):"""
             elif issubclass(view_class, DetailView):
                 result += create_detail_test(view_class, endpoint.factory, endpoint.url_name)
 
-
-    print(result)
     return code_strip(result)
 
 
@@ -37,7 +35,7 @@ def gen_imports(app_name):
     endpoints = import_app_endpoints(app_name)
 
     result = """
-        from django.tests import TestCase
+        from django.test import TestCase
         from django.shortcuts import reverse
     """
 

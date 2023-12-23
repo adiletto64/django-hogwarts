@@ -1,4 +1,3 @@
-import pytest
 from hogwarts.magic_tests.factory import change_field_to_faker, generate_factory_class, flatten_multiline, \
     generate_imports, split_model_classes, generate_factories_code
 from hogwarts.utils import code_strip

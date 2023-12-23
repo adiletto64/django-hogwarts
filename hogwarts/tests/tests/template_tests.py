@@ -119,7 +119,7 @@ def test_it_generates_imports():
     result = gen_imports("posts")
 
     expected = """
-    from django.tests import TestCase
+    from django.test import TestCase
     from django.shortcuts import reverse
 
     from posts.models import Post
@@ -134,7 +134,7 @@ def test_it_generates_tests():
     result = gen_tests("posts")
 
     expected = """
-    from django.tests import TestCase
+    from django.test import TestCase
     from django.shortcuts import reverse
     
     from posts.models import Post

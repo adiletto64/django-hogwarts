@@ -47,7 +47,7 @@ def gen_templates(app_name: str):
     if CUSTOM_SCAFFOLD_FOLDER:
         console.print(f"using custom scaffold {CUSTOM_SCAFFOLD_FOLDER}", style="yellow")
     else:
-        console.print(f"using default scaffold folder", style="bright_black")
+        console.print("using default scaffold folder", style="bright_black")
 
     for endpoint in endpoints:
         if not endpoint.model or template_exists(endpoint.template_name):
