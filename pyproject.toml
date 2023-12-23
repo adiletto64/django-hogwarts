@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-hogwarts"
-version = "0.8.1"
+version = "0.9.0"
 description = "Django utilities for codegen and DX improvement"
 authors = ["adiletto64 <adiletdj19@gmail.com>"]
 packages = [{ include = "hogwarts" }]
