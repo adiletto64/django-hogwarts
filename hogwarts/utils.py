@@ -1,4 +1,5 @@
 import ast
+import re
 
 
 def to_plural(string: str):
@@ -94,3 +95,10 @@ def remove_imports(code):
 
     new_code = '\n'.join(new_lines)
     return new_code
+
+
+def is_snake_case(s):
+    return bool(re.match(r'^[a-z]+(_[a-z]+)*$', s))
+
+def is_camel_case(s):
+    return bool(re.match(r'^[A-Za-z][a-z]*([A-Z][a-z]*)*$', s))
